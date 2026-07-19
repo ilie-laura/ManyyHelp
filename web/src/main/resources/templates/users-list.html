@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link corectat pentru Bootstrap (Spring Boot caută în static în mod implicit) -->
+    <link rel="stylesheet" th:href="@{/bootstrap.min.yeti.css}">
+    <title>Utilizatori</title>
+    <style>
+        .avatar-img { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; }
+    </style>
+</head>
+<body class="container mt-5">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Listă Utilizatori</h1>
+</div>
+
+<table class="table table-striped table-hover table-bordered align-middle">
+    <thead class="table-dark">
+    <tr>
+        <th>Avatar</th>
+
+        <th>Nume Complet</th>
+        <th>Username</th>
+        <th>Rol</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- th:each face o buclă prin lista "users" trimisă de Controller -->
+    <tr th:each="user : ${users}">
+        <td>
+            <img th:src="${user.photourl != null && !user.photourl.isEmpty()} ? ${user.photourl} : '/https://via.placeholder.com/40'"
+                 alt="Avatar"
+                 width="40"
+                 height="40">
+        </td>
+
+        <td th:text="${user.prenume} + ' ' + ${user.nume}">Ioan Popescu</td>
+        <td th:text="${user.username}">ioan99</td>
+        <td>
+            <!-- Afișare badge în funcție de valoarea booleană (0-user, 1-provider) -->
+            <span th:if="${user.user_or_provider}" class="badge bg-warning text-dark">Provider</span>
+            <span th:if="${!user.user_or_provider}" class="badge bg-success text-white">User</span>
+        </td>
+    </tr>
+    <!-- Mesaj afișat doar dacă lista este goală -->
+    <tr th:if="${#lists.isEmpty(users)}">
+        <td colspan="5" class="text-center text-muted">Nu există utilizatori înregistrați.</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

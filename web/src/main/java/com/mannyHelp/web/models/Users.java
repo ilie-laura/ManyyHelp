@@ -25,7 +25,7 @@ public class Users {
     private Boolean user_or_provider;//0-user 1-provider
 
 
-
-
-
+    public String getPhotoUrl() {
+        return  photourl;
+    }
 }
