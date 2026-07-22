@@ -1,4 +1,4 @@
-package com.mannyHelp.web.controller;
+package com.mannyHelp.web.controllers;
 
 import com.mannyHelp.web.dto.UsersDto;
 import com.mannyHelp.web.service.UsersService;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 
 @Controller
-@RequestMapping("/users-list")
+@RequestMapping("/")
 public class UsersController {
 
     private final UsersService usersService;
@@ -17,7 +17,17 @@ public class UsersController {
     public UsersController(UsersService usersService) {
         this.usersService = usersService;
     }
+    @GetMapping("/mainPage")
+    public String mainPage(Model model) {
+        // 1. Preluăm lista de utilizatori
+        List<UsersDto> usersList = usersService.findAllUsers();
 
+        // 2. O adăugăm în Model
+        model.addAttribute("users", usersList);
+
+        // 3. Returnăm fișierul HTML (mainPage.html din templates)
+        return "mainPage";
+    }
     @GetMapping
     public String getAllUsers(Model model) {
         List<UsersDto> usersList = usersService.findAllUsers();
@@ -28,4 +38,5 @@ public class UsersController {
 
         return "users-list"; // Numele fișierului users.html din folderul templates
     }
+
 }

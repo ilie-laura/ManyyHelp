@@ -4,53 +4,149 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Link corectat pentru Bootstrap (Spring Boot caută în static în mod implicit) -->
+    <title>Gestionare Utilizatori</title>
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" th:href="@{/bootstrap.min.yeti.css}">
-    <title>Utilizatori</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
-        .avatar-img { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .main-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .avatar-img {
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .table > :not(caption) > * > * {
+            padding: 0.85rem 1rem;
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(240, 243, 246, 0.6);
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .badge-pill {
+            padding: 0.45em 0.8em;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            color: #a0aec0;
+        }
     </style>
 </head>
-<body class="container mt-5">
+<body class="py-5">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Listă Utilizatori</h1>
+<div class="container">
+
+    <!-- Hero / Header Section -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-people-fill me-2 text-primary"></i>Gestionare Utilizatori
+            </h2>
+            <p class="text-muted mb-0">Listă detaliată cu toți utilizatorii și furnizorii din platformă.</p>
+        </div>
+        <div>
+            <a href="#" class="btn btn-primary px-3 shadow-sm fw-medium">
+                <i class="bi bi-person-plus-fill me-1"></i> Adaugă Utilizator
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="card main-card">
+        <!-- Card Header Toolbar -->
+        <div class="card-header bg-white py-3 px-4 border-bottom-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                Total: <strong th:text="${users != null ? #lists.size(users) : 0}">0</strong> utilizatori
+            </span>
+            <div class="input-group" style="max-width: 280px;">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Căutare rapidă...">
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="bg-light border-bottom">
+                <tr>
+                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4" style="width: 70px;">Avatar</th>
+                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nume Complet</th>
+                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Username</th>
+                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rol</th>
+                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end pe-4">Acțiuni</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Iterare utilizatori -->
+                <tr th:each="user : ${users}">
+                    <td class="ps-4">
+                        <img th:src="${user.photourl != null && !user.photourl.isEmpty()} ? ${user.photourl} : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + ${user.username}"
+                             alt="Avatar"
+                             class="avatar-img">
+                    </td>
+                    <td>
+                        <div class="fw-bold text-dark" th:text="${user.prenume} + ' ' + ${user.nume}">Ioan Popescu</div>
+                    </td>
+                    <td>
+                        <span class="text-muted" th:text="'@' + ${user.username}">@ioan99</span>
+                    </td>
+                    <td>
+                        <!-- Badge-uri elegante -->
+                        <span th:if="${user.user_or_provider}" class="badge bg-warning text-dark rounded-pill badge-pill">
+                            <i class="bi bi-briefcase-fill me-1"></i> Provider
+                        </span>
+                        <span th:if="${!user.user_or_provider}" class="badge bg-success text-white rounded-pill badge-pill">
+                            <i class="bi bi-person-fill me-1"></i> User
+                        </span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-light border text-secondary me-1" title="Editează">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light border text-danger" title="Șterge">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Mesaj Empty State -->
+                <tr th:if="${#lists.isEmpty(users)}">
+                    <td colspan="5" class="text-center py-5">
+                        <i class="bi bi-inbox empty-state-icon d-block mb-2"></i>
+                        <h6 class="fw-bold text-muted mb-1">Nu s-a găsit niciun utilizator</h6>
+                        <p class="text-muted small mb-0">Baza de date este goală sau nu există înregistrări potrivite.</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-
-<table class="table table-striped table-hover table-bordered align-middle">
-    <thead class="table-dark">
-    <tr>
-        <th>Avatar</th>
-
-        <th>Nume Complet</th>
-        <th>Username</th>
-        <th>Rol</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- th:each face o buclă prin lista "users" trimisă de Controller -->
-    <tr th:each="user : ${users}">
-        <td>
-            <img th:src="${user.photourl != null && !user.photourl.isEmpty()} ? ${user.photourl} : '/https://via.placeholder.com/40'"
-                 alt="Avatar"
-                 width="40"
-                 height="40">
-        </td>
-
-        <td th:text="${user.prenume} + ' ' + ${user.nume}">Ioan Popescu</td>
-        <td th:text="${user.username}">ioan99</td>
-        <td>
-            <!-- Afișare badge în funcție de valoarea booleană (0-user, 1-provider) -->
-            <span th:if="${user.user_or_provider}" class="badge bg-warning text-dark">Provider</span>
-            <span th:if="${!user.user_or_provider}" class="badge bg-success text-white">User</span>
-        </td>
-    </tr>
-    <!-- Mesaj afișat doar dacă lista este goală -->
-    <tr th:if="${#lists.isEmpty(users)}">
-        <td colspan="5" class="text-center text-muted">Nu există utilizatori înregistrați.</td>
-    </tr>
-    </tbody>
-</table>
 
 </body>
 </html>
