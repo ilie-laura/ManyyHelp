@@ -4,73 +4,212 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionare Utilizatori</title>
+    <title>Trustlist - Gestionare Utilizatori</title>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" th:href="@{/bootstrap.min.yeti.css}">
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons & Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* Stil comun pentru ambele butoane pentru dimensiuni identice */
+        .btn-nav-custom {
+            border-radius: 30px !important;
+            padding: 10px 24px !important;
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            line-height: 1.2 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Stil specific pentru Logout (Border/Outline) */
+        .btn-logout {
+            background-color: transparent !important;
+            color: #334155 !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        .btn-logout:hover {
+            background-color: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+            color: #0f2a37 !important;
+        }
+
+        /* Stil specific pentru Login (Plin/Dark Slate) */
+        .btn-login {
+            background-color: #0f2a37 !important;
+            color: #ffffff !important;
+            border: 1px solid #0f2a37 !important;
+        }
+        .btn-login:hover {
+            background-color: #163e52 !important;
+            border-color: #163e52 !important;
+            color: #ffffff !important;
+        }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1e293b;
+            background-color: #f8fafc;
         }
 
+        /* --- NAVBAR --- */
+        .navbar {
+            background-color: #ffffff;
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #0d3b4c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-link {
+            font-weight: 500;
+            color: #334155 !important;
+            margin: 0 10px;
+        }
+        .btn-book {
+            background-color: #0f2a37;
+            color: white;
+            border-radius: 30px;
+            padding: 10px 24px;
+            font-weight: 600;
+        }
+        .btn-book:hover {
+            background-color: #163e52;
+            color: white;
+        }
+
+        /* --- MAIN CARD & TABLE --- */
         .main-card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #cbd5e1;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
             overflow: hidden;
+            background: #ffffff;
         }
 
-        .avatar-img {
+        .pro-avatar-img {
             width: 44px;
             height: 44px;
             object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pro-avatar-initials {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background-color: #538898;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
         }
 
         .table > :not(caption) > * > * {
-            padding: 0.85rem 1rem;
+            padding: 1rem 1.25rem;
             vertical-align: middle;
         }
 
         .table-hover tbody tr:hover {
-            background-color: rgba(240, 243, 246, 0.6);
+            background-color: #f1f5f9;
             transition: background-color 0.15s ease-in-out;
         }
 
-        .badge-pill {
-            padding: 0.45em 0.8em;
+        /* --- BADGES & BUTTONS --- */
+        .pro-tag {
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
             font-weight: 600;
-            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .pro-tag-provider {
+            background-color: #0d3d4d;
+            color: #ffffff;
+        }
+        .pro-tag-user {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-add-user {
+            background: linear-gradient(135deg, #0d3d4d 0%, #15798a 100%);
+            color: white;
+            border-radius: 30px;
+            padding: 10px 22px;
+            font-weight: 700;
+            border: none;
+        }
+        .btn-add-user:hover {
+            opacity: 0.95;
+            color: white;
         }
 
         .empty-state-icon {
-            font-size: 2.5rem;
-            color: #a0aec0;
+            font-size: 3rem;
+            color: #cbd5e1;
         }
     </style>
 </head>
-<body class="py-5">
+<body>
 
-<div class="container">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg border-bottom sticky-top mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/mainPage}">
+            <i class="bi bi-stars text-info"></i> Trustlist
+        </a>
 
-    <!-- Hero / Header Section -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/mainPage}">Browse pros</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold text-dark" th:href="@{/users-list}">Current users</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">How it works</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">For pros</a></li>
+            </ul>
+
+            <div class="d-flex gap-2 align-items-center">
+                <!-- Formular Logout -->
+                <form th:action="@{/logout}" method="post" class="m-0 p-0 d-inline">
+                    <button type="submit" class="btn btn-nav-custom btn-logout">Logout</button>
+                </form>
+
+                <!-- Buton Login -->
+                <a th:href="@{/login}" class="btn btn-nav-custom btn-login text-decoration-none">Login</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container pb-5">
+
+    <!-- Header Section -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
-            <h2 class="fw-bold mb-1">
-                <i class="bi bi-people-fill me-2 text-primary"></i>Gestionare Utilizatori
+            <h2 class="fw-extrabold mb-1" style="color: #0d3b4c; font-weight: 800;">
+                <i class="bi bi-people-fill me-2 text-info"></i>Gestionare Utilizatori
             </h2>
-            <p class="text-muted mb-0">Listă detaliată cu toți utilizatorii și furnizorii din platformă.</p>
+            <p class="text-muted mb-0">Listă detaliată cu toți utilizatorii și furnizorii înregistrați pe Trustlist.</p>
         </div>
         <div>
-            <a href="#" class="btn btn-primary px-3 shadow-sm fw-medium">
+            <a th:href="@{/register}" class="btn btn-add-user text-decoration-none shadow-sm">
                 <i class="bi bi-person-plus-fill me-1"></i> Adaugă Utilizator
             </a>
         </div>
@@ -79,13 +218,13 @@
     <!-- Main Content Card -->
     <div class="card main-card">
         <!-- Card Header Toolbar -->
-        <div class="card-header bg-white py-3 px-4 border-bottom-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
-                Total: <strong th:text="${users != null ? #lists.size(users) : 0}">0</strong> utilizatori
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-semibold">
+                Total: <strong class="text-info" th:text="${users != null ? #lists.size(users) : 0}">0</strong> utilizatori
             </span>
             <div class="input-group" style="max-width: 280px;">
-                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Căutare rapidă...">
+                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control bg-light border-start-0 ps-0 text-sm" placeholder="Căutare rapidă...">
             </div>
         </div>
 
@@ -94,10 +233,10 @@
             <table class="table table-hover mb-0">
                 <thead class="bg-light border-bottom">
                 <tr>
-                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4" style="width: 70px;">Avatar</th>
+                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4" style="width: 80px;">Avatar</th>
                     <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nume Complet</th>
                     <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Username</th>
-                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Rol</th>
+                    <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tip Cont</th>
                     <th scope="col" class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end pe-4">Acțiuni</th>
                 </tr>
                 </thead>
@@ -105,32 +244,54 @@
                 <!-- Iterare utilizatori -->
                 <tr th:each="user : ${users}">
                     <td class="ps-4">
-                        <img th:src="${user.photourl != null && !user.photourl.isEmpty()} ? ${user.photourl} : 'https://api.dicebear.com/7.x/bottts/svg?seed=' + ${user.username}"
+                        <!-- Dacă are photourl -->
+                        <img th:if="${user.photourl != null && !user.photourl.isEmpty()}"
+                             th:src="${user.photourl}"
                              alt="Avatar"
-                             class="avatar-img">
+                             class="pro-avatar-img">
+
+                        <!-- Fallback: Inițiale din nume și prenume -->
+                        <div th:unless="${user.photourl != null && !user.photourl.isEmpty()}"
+                             class="pro-avatar-initials"
+                             th:text="${(user.prenume != null && !user.prenume.isEmpty() ? #strings.substring(user.prenume,0,1) : '') + (user.nume != null && !user.nume.isEmpty() ? #strings.substring(user.nume,0,1) : 'U')}">
+                            U
+                        </div>
                     </td>
                     <td>
-                        <div class="fw-bold text-dark" th:text="${user.prenume} + ' ' + ${user.nume}">Ioan Popescu</div>
+                        <div class="fw-bold text-dark mb-0" th:text="${user.prenume + ' ' + user.nume}">Ioan Popescu</div>
                     </td>
                     <td>
-                        <span class="text-muted" th:text="'@' + ${user.username}">@ioan99</span>
+                        <span class="text-muted small fw-medium" th:text="'@' + ${user.username}">@ioan99</span>
                     </td>
                     <td>
-                        <!-- Badge-uri elegante -->
-                        <span th:if="${user.user_or_provider}" class="badge bg-warning text-dark rounded-pill badge-pill">
-                            <i class="bi bi-briefcase-fill me-1"></i> Provider
+                        <!-- Badge-uri potrivite cu tema -->
+                        <span th:if="${user.userOrProvider}" class="pro-tag pro-tag-provider">
+                            <i class="bi bi-patch-check-fill text-info"></i> Provider
                         </span>
-                        <span th:if="${!user.user_or_provider}" class="badge bg-success text-white rounded-pill badge-pill">
-                            <i class="bi bi-person-fill me-1"></i> User
+                        <span th:if="${!user.userOrProvider}" class="pro-tag pro-tag-user">
+                            <i class="bi bi-person-fill"></i> User
                         </span>
-                    </td>
                     <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-light border text-secondary me-1" title="Editează">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light border text-danger" title="Șterge">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                        <div class="d-inline-flex gap-1">
+                            <!-- EDIT după Username -->
+                            <a th:href="@{/users/edit/{username}(username=${user.username})}"
+                               class="btn btn-sm btn-light border text-secondary rounded-3"
+                               title="Editează">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+
+                            <!-- DELETE după Username -->
+                            <form th:action="@{/users/delete/{username}(username=${user.username})}"
+                                  method="post"
+                                  class="d-inline"
+                                  onclick="return confirm('Ești sigur că vrei să ștergi acest utilizator?');">
+                                <button type="submit"
+                                        class="btn btn-sm btn-light border text-danger rounded-3"
+                                        title="Șterge">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
 
@@ -138,8 +299,8 @@
                 <tr th:if="${#lists.isEmpty(users)}">
                     <td colspan="5" class="text-center py-5">
                         <i class="bi bi-inbox empty-state-icon d-block mb-2"></i>
-                        <h6 class="fw-bold text-muted mb-1">Nu s-a găsit niciun utilizator</h6>
-                        <p class="text-muted small mb-0">Baza de date este goală sau nu există înregistrări potrivite.</p>
+                        <h6 class="fw-bold text-dark mb-1">Nu s-a găsit niciun utilizator</h6>
+                        <p class="text-muted small mb-0">Baza de date este goală sau nu există înregistrări.</p>
                     </td>
                 </tr>
                 </tbody>
@@ -148,5 +309,6 @@
     </div>
 </div>
 
+<script href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

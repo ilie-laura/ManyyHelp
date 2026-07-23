@@ -21,11 +21,13 @@ public class Users {
 
     private String nume;
     private String prenume;
-
-    private Boolean user_or_provider;//0-user 1-provider
+    @Column(name = "user_or_provider")
+    private boolean userOrProvider;
 
 
     public String getPhotoUrl() {
         return  photourl;
     }
+
+
 }

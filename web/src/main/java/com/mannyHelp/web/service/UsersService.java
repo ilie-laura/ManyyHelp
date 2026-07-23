@@ -5,4 +5,12 @@ import java.util.List;
 
 public interface UsersService {
     List<UsersDto> findAllUsers();
+
+    void saveUser(UsersDto userDto);
+
+    UsersDto findUserByUsername(String username);
+
+    void updateUser(String username, UsersDto userDto);
+
+    void deleteUser(String username);
 }

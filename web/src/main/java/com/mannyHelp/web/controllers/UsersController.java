@@ -4,8 +4,8 @@ import com.mannyHelp.web.dto.UsersDto;
 import com.mannyHelp.web.service.UsersService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @Controller
@@ -28,7 +28,7 @@ public class UsersController {
         // 3. Returnăm fișierul HTML (mainPage.html din templates)
         return "mainPage";
     }
-    @GetMapping
+    @GetMapping("/users-list")
     public String getAllUsers(Model model) {
         List<UsersDto> usersList = usersService.findAllUsers();
 
@@ -36,7 +36,25 @@ public class UsersController {
 
         model.addAttribute("users", usersList);
 
-        return "users-list"; // Numele fișierului users.html din folderul templates
+        return "users-list";
+    }
+    @GetMapping("/users/edit/{username}")
+    public String showEditForm(@PathVariable("username") String username, Model model) {
+        UsersDto userDto = usersService.findUserByUsername(username);
+        model.addAttribute("user", userDto);
+        model.addAttribute("currentUsername", username);
+        return "edit-user";
     }
 
+    @PostMapping("/users/edit/{username}")
+    public String updateUser(@PathVariable("username") String username, @ModelAttribute("user") UsersDto userDto) {
+        usersService.updateUser(username, userDto);
+        return "redirect:/users-list?updated";
+    }
+
+    @PostMapping("/users/delete/{username}")
+    public String deleteUser(@PathVariable("username") String username) {
+        usersService.deleteUser(username);
+        return "redirect:/users-list?deleted";
+    }
 }

@@ -12,6 +12,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* Stil comun pentru ambele butoane pentru dimensiuni identice */
+        .btn-nav-custom {
+            border-radius: 30px !important;
+            padding: 10px 24px !important;
+            font-weight: 600 !important;
+            font-size: 0.95rem !important;
+            line-height: 1.2 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Stil specific pentru Logout (Border/Outline) */
+        .btn-logout {
+            background-color: transparent !important;
+            color: #334155 !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        .btn-logout:hover {
+            background-color: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+            color: #0f2a37 !important;
+        }
+
+        /* Stil specific pentru Login (Plin/Dark Slate) */
+        .btn-login {
+            background-color: #0f2a37 !important;
+            color: #ffffff !important;
+            border: 1px solid #0f2a37 !important;
+        }
+        .btn-login:hover {
+            background-color: #163e52 !important;
+            border-color: #163e52 !important;
+            color: #ffffff !important;
+        }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #1e293b;
@@ -204,10 +241,20 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item"><a class="nav-link" href="#">Browse pros</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/users-list}">Current users</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">How it works</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">For pros</a></li>
             </ul>
-            <a href="#" class="btn btn-book text-decoration-none">Book a pro</a>
+
+            <div class="d-flex gap-2 align-items-center">
+                <!-- Formular Logout -->
+                <form th:action="@{/logout}" method="post" class="m-0 p-0 d-inline">
+                    <button type="submit" class="btn btn-nav-custom btn-logout">Logout</button>
+                </form>
+
+                <!-- Buton Login -->
+                <a th:href="@{/login}" class="btn btn-nav-custom btn-login text-decoration-none">Login</a>
+            </div>
         </div>
     </div>
 </nav>
@@ -312,7 +359,6 @@
         </div>
     </div>
 </section>
-
 <!-- Top-rated near you -->
 <section class="pb-5">
     <div class="container">
@@ -329,17 +375,20 @@
             <div class="col-md-4" th:each="user : ${users}">
                 <div class="pro-card">
                     <div class="d-flex align-items-center gap-3 mb-3">
-                        <!-- Dacă are avatar folosește URL, altfel afișează inițialele -->
+                        <!-- Dacă are avatar folosește URL, altfel afișează inițialele în siguranță -->
                         <img th:if="${user.photourl != null && !user.photourl.isEmpty()}"
                              th:src="${user.photourl}"
                              class="pro-avatar" style="object-fit: cover;" alt="Avatar">
+
                         <div th:unless="${user.photourl != null && !user.photourl.isEmpty()}"
                              class="pro-avatar"
-                             th:text="${#strings.substring(user.prenume,0,1) + #strings.substring(user.nume,0,1)}">CC</div>
+                             th:text="${(user.prenume != null && !user.prenume.isEmpty() ? #strings.substring(user.prenume,0,1) : '') + (user.nume != null && !user.nume.isEmpty() ? #strings.substring(user.nume,0,1) : 'U')}">
+                            U
+                        </div>
 
                         <div>
                             <h6 class="fw-bold mb-0">
-                                <span th:text="${user.prenume + ' ' + user.nume}">Clara Clean Co.</span>
+                                <span th:text="${(user.prenume != null ? user.prenume : '') + ' ' + (user.nume != null ? user.nume : '')}">Clara Clean Co.</span>
                                 <i class="bi bi-patch-check-fill text-info ms-1"></i>
                             </h6>
                             <small class="text-muted">
@@ -351,7 +400,8 @@
                         Professional services provider verified by Trustlist. High quality work guaranteed.
                     </p>
                     <div class="d-flex gap-2">
-                        <span class="pro-tag" th:text="${user.user_or_provider ? 'Provider' : 'User'}">Provider</span>
+                        <!-- Folosim userOrProvider în loc de user_or_provider -->
+                        <span class="pro-tag" th:text="${user.userOrProvider ? 'Provider' : 'User'}">Provider</span>
                         <span class="pro-tag">Verified</span>
                     </div>
                 </div>
