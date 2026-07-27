@@ -1,7 +1,6 @@
 package com.mannyHelp.web.controllers;
 
 import com.mannyHelp.web.dto.UsersDto;
-import com.mannyHelp.web.models.Users;
 import com.mannyHelp.web.service.UsersService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,10 +21,8 @@ public class UsersController {
 
     @GetMapping("/mainPage")
     public String getMainPage(Model model, Principal principal) {
-
         List<UsersDto> users = usersService.findAllUsers();
         model.addAttribute("users", users);
-
 
         UsersDto loggedUser = null;
         if (principal != null) {
@@ -39,41 +36,14 @@ public class UsersController {
     @GetMapping("/users-list")
     public String getAllUsers(Model model) {
         List<UsersDto> usersList = usersService.findAllUsers();
-
-        System.out.println("Număr utilizatori trimiși în Thymeleaf: " + usersList.size());
-
         model.addAttribute("users", usersList);
-
         return "users-list";
-    }
-
-    @GetMapping("/users/edit/{username}")
-    public String showEditForm(@PathVariable("username") String username, Model model) {
-        UsersDto userDto = usersService.findUserByUsername(username);
-        model.addAttribute("user", userDto);
-        model.addAttribute("currentUsername", username);
-        return "edit-user";
-    }
-
-    @PostMapping("/users/edit/{username}")
-    public String updateUser(@PathVariable("username") String username, @ModelAttribute("user") UsersDto userDto) {
-        usersService.updateUser(username, userDto);
-        return "redirect:/users-list?updated";
-    }
-
-    @PostMapping("/users/delete/{username}")
-    public String deleteUser(@PathVariable("username") String username) {
-        usersService.deleteUser(username);
-        return "redirect:/users-list?deleted";
     }
 
     @GetMapping("/users/{id}")
     public String getUserDetails(@PathVariable("id") Long id, Model model, Principal principal) {
-
-
         UsersDto user = usersService.findUserById(id);
         model.addAttribute("user", user);
-
 
         if (principal != null) {
             UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
@@ -81,5 +51,47 @@ public class UsersController {
         }
 
         return "user-details";
+    }
+
+    // --- FORMULAR EDITARE (După ID-ul utilizatorului) ---
+    @GetMapping("/users/edit/{id}")
+    public String showEditForm(@PathVariable("id") Long id, Model model, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
+
+        // Verificăm dacă utilizatorul încearcă să editeze propriul profil
+        if (!loggedUser.getUserid().equals(id)) {
+            return "redirect:/users/" + loggedUser.getUserid();
+        }
+
+        // Trimitem obiectul "user" în model pentru formularul HTML
+        model.addAttribute("user", loggedUser);
+
+        return "edit-user";
+    }
+
+    // --- SALVARE EDITARE ---
+    @PostMapping("/users/edit/{id}")
+    public String updateUser(@PathVariable("id") Long id,
+                             @ModelAttribute("user") UsersDto userDto,
+                             Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        String loggedUsername = principal.getName();
+        usersService.updateUser(loggedUsername, userDto);
+
+        UsersDto updatedUser = usersService.findUserByUsername(loggedUsername);
+        return "redirect:/users/" + updatedUser.getUserid();
+    }
+
+    @PostMapping("/users/delete/{username}")
+    public String deleteUser(@PathVariable("username") String username) {
+        usersService.deleteUser(username);
+        return "redirect:/users-list?deleted";
     }
 }
