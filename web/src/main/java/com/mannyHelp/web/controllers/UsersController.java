@@ -1,11 +1,13 @@
 package com.mannyHelp.web.controllers;
 
 import com.mannyHelp.web.dto.UsersDto;
+import com.mannyHelp.web.models.Users;
 import com.mannyHelp.web.service.UsersService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -18,14 +20,18 @@ public class UsersController {
         this.usersService = usersService;
     }
     @GetMapping("/mainPage")
-    public String mainPage(Model model) {
-        // 1. Preluăm lista de utilizatori
-        List<UsersDto> usersList = usersService.findAllUsers();
+    public String getMainPage(Model model, Principal principal) {
+        
+        List<UsersDto> users = usersService.findAllUsers();
+        model.addAttribute("users", users);
 
-        // 2. O adăugăm în Model
-        model.addAttribute("users", usersList);
 
-        // 3. Returnăm fișierul HTML (mainPage.html din templates)
+        UsersDto loggedUser = null;
+        if (principal != null) {
+            loggedUser = usersService.findUserByUsername(principal.getName());
+        }
+        model.addAttribute("loggedUser", loggedUser);
+
         return "mainPage";
     }
     @GetMapping("/users-list")

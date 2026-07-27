@@ -1,7 +1,16 @@
 package com.mannyHelp.web.models;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDateTime;
+
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 @Entity
 @Table(name = "recenzie")
@@ -20,9 +29,9 @@ public class Recenzie{
     private OferitorServicii provider;      // cui i se adresează recenzia
 
 
-    private int rating;             // ex: 1-5
+    private int rating;
     private String comment;
     private LocalDateTime createdAt;
 
-    // getters/setters
+
 }

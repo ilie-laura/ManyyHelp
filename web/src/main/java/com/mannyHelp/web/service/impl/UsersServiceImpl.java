@@ -57,7 +57,7 @@ public class UsersServiceImpl implements UsersService {
         return mapToDto(user);
 
     }
-    // 2. Actualizare după Username
+
     public void updateUser(String username, UsersDto dto) {
         Users user = usersRepository.findByUsername(username)
                 ;
@@ -74,9 +74,9 @@ public class UsersServiceImpl implements UsersService {
         usersRepository.save(user);
     }
 
-    // 3. Ștergere după Username
+
     public void deleteUser(String username) {
-        // Dacă metoda nu există în UsersRepository, o poți adăuga: void deleteByUsername(String username);
+
         Users user = usersRepository.findByUsername(username)
                 ;
         usersRepository.delete(user);

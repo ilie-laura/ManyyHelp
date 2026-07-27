@@ -13,6 +13,18 @@ import java.util.List;
 @Builder
 public class OferitorServiciiDto {
 
+    private String username;
+    private String password;
+    private String nume;
+    private String prenume;
+    private String photoUrl;
+
+
+    private String numeCompanie;
+    private String cui;
+    private String descriereServicii;
+    private String telefonContact;
+    private String photourl;
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Recenzie> reviews = new ArrayList<>();
 }

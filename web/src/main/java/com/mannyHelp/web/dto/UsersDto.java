@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsersDto {
+    private int userid;
     private String username;
     private String photourl;
     private boolean userOrProvider;
