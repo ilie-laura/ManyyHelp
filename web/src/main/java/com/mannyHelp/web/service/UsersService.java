@@ -1,6 +1,8 @@
 package com.mannyHelp.web.service;
 
 import com.mannyHelp.web.dto.UsersDto;
+import com.mannyHelp.web.models.Users;
+
 import java.util.List;
 
 public interface UsersService {
@@ -13,4 +15,6 @@ public interface UsersService {
     void updateUser(String username, UsersDto userDto);
 
     void deleteUser(String username);
+
+    UsersDto findUserById(Long id);
 }

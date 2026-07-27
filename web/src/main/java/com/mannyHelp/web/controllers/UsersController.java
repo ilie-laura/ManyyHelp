@@ -19,9 +19,10 @@ public class UsersController {
     public UsersController(UsersService usersService) {
         this.usersService = usersService;
     }
+
     @GetMapping("/mainPage")
     public String getMainPage(Model model, Principal principal) {
-        
+
         List<UsersDto> users = usersService.findAllUsers();
         model.addAttribute("users", users);
 
@@ -34,6 +35,7 @@ public class UsersController {
 
         return "mainPage";
     }
+
     @GetMapping("/users-list")
     public String getAllUsers(Model model) {
         List<UsersDto> usersList = usersService.findAllUsers();
@@ -44,6 +46,7 @@ public class UsersController {
 
         return "users-list";
     }
+
     @GetMapping("/users/edit/{username}")
     public String showEditForm(@PathVariable("username") String username, Model model) {
         UsersDto userDto = usersService.findUserByUsername(username);
@@ -62,5 +65,21 @@ public class UsersController {
     public String deleteUser(@PathVariable("username") String username) {
         usersService.deleteUser(username);
         return "redirect:/users-list?deleted";
+    }
+
+    @GetMapping("/users/{id}")
+    public String getUserDetails(@PathVariable("id") Long id, Model model, Principal principal) {
+
+
+        UsersDto user = usersService.findUserById(id);
+        model.addAttribute("user", user);
+
+
+        if (principal != null) {
+            UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
+            model.addAttribute("loggedUser", loggedUser);
+        }
+
+        return "user-details";
     }
 }

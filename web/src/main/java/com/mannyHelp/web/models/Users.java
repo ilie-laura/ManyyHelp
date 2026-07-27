@@ -13,8 +13,8 @@ import lombok.*;
 @Table(name = "users")
 public class Users {
     @Id
-    @GeneratedValue
-    private int userid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userid;
     private String username;
     private String password;
     private String photourl;
@@ -23,7 +23,6 @@ public class Users {
     private String prenume;
     @Column(name = "user_or_provider")
     private boolean userOrProvider;
-
 
     public String getPhotoUrl() {
         return  photourl;

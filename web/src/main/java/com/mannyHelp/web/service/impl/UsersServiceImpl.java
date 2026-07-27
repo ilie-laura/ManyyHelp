@@ -44,6 +44,7 @@ public class UsersServiceImpl implements UsersService {
 
     private UsersDto mapToDto(Users user) {
         return UsersDto.builder()
+                .userid(user.getUserid())
                 .nume(user.getNume())
                 .prenume(user.getPrenume())
                 .username(user.getUsername())
@@ -57,6 +58,7 @@ public class UsersServiceImpl implements UsersService {
         return mapToDto(user);
 
     }
+
 
     public void updateUser(String username, UsersDto dto) {
         Users user = usersRepository.findByUsername(username)
@@ -81,4 +83,14 @@ public class UsersServiceImpl implements UsersService {
                 ;
         usersRepository.delete(user);
     }
+
+    @Override
+    public UsersDto findUserById(Long id) {
+        Users user = usersRepository.findByUserid(id);
+        return mapToDto(user);
+    }
+
+
+
+
 }
