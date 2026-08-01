@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ProgramareRepository extends JpaRepository<Programare, BookingId> {
     List<Programare> findByUserUserid(Long userId);
+    
 }

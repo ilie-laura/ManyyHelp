@@ -151,7 +151,49 @@
                         </div>
                     </div>
                 </div>
+                <!-- Secțiune Programări -->
+                <div class="pro-card p-4 mb-4">
+                    <h5 class="fw-bold mb-4 border-bottom pb-3">
+                        <i class="bi bi-calendar-check text-info me-2"></i>Programările mele
+                    </h5>
 
+                    <!-- Lista de programări existente -->
+                    <div th:if="${programari != null && !#lists.isEmpty(programari)}" class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Serviciu</th>
+                                <th>Furnizor</th>
+                                <th>Data & Ora</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="p : ${programari}">
+                                <td class="fw-semibold text-dark" th:text="${p.serviceNume != null ? p.serviceNume : '-'}">Reparații sanitare</td>
+                                <td class="text-secondary" th:text="${p.providerNume != null ? p.providerNume : '-'}">AquaSan SRL</td>
+                                <td>
+                                    <i class="bi bi-clock me-1 text-muted"></i>
+                                    <span th:text="${p.dataProgramare != null ? #temporals.format(p.dataProgramare, 'dd-MM-yyyy HH:mm') : '-'}">12-08-2026 14:00</span>
+                                </td>
+                                <td>
+                        <span class="badge rounded-pill"
+                              th:classappend="${p.status == 'APPROVED' ? 'bg-success' : (p.status == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark')}"
+                              th:text="${p.status != null ? p.status : 'PENDING'}">
+                            PENDING
+                        </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mesaj dacă utilizatorul nu are nicio programare -->
+                    <div th:if="${programari == null || #lists.isEmpty(programari)}" class="text-center py-4 text-muted">
+                        <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                        <p class="mb-0">Nu ai nici o programare înregistrată momentan.</p>
+                    </div>
+                </div>
                 <!-- Butoane Navigare -->
                 <div class="d-flex gap-3">
                     <a th:href="@{/}" class="btn btn-list-business text-decoration-none">

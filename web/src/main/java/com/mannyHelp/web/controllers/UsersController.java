@@ -1,6 +1,8 @@
 package com.mannyHelp.web.controllers;
 
+import com.mannyHelp.web.dto.ProgramareDto;
 import com.mannyHelp.web.dto.UsersDto;
+import com.mannyHelp.web.service.ProgramareService;
 import com.mannyHelp.web.service.UsersService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,9 +16,10 @@ import java.util.List;
 public class UsersController {
 
     private final UsersService usersService;
-
-    public UsersController(UsersService usersService) {
+    private final ProgramareService programareService;
+    public UsersController(UsersService usersService, ProgramareService programareService) {
         this.usersService = usersService;
+        this.programareService = programareService;
     }
 
     @GetMapping("/mainPage")
@@ -41,19 +44,18 @@ public class UsersController {
     }
 
     @GetMapping("/users/{id}")
-    public String getUserDetails(@PathVariable("id") Long id, Model model, Principal principal) {
+    public String getUserProfile(@PathVariable("id") Long id, Model model) {
         UsersDto user = usersService.findUserById(id);
         model.addAttribute("user", user);
 
-        if (principal != null) {
-            UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
-            model.addAttribute("loggedUser", loggedUser);
-        }
+
+        List<ProgramareDto> programari = programareService.getProgramariByUserId(id);
+        model.addAttribute("programari", programari);
 
         return "user-details";
     }
 
-    // --- FORMULAR EDITARE (După ID-ul utilizatorului) ---
+
     @GetMapping("/users/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model, Principal principal) {
         if (principal == null) {
@@ -62,12 +64,10 @@ public class UsersController {
 
         UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
 
-        // Verificăm dacă utilizatorul încearcă să editeze propriul profil
+
         if (!loggedUser.getUserid().equals(id)) {
             return "redirect:/users/" + loggedUser.getUserid();
         }
-
-        // Trimitem obiectul "user" în model pentru formularul HTML
         model.addAttribute("user", loggedUser);
 
         return "edit-user";

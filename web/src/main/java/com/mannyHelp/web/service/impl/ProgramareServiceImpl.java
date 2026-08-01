@@ -10,6 +10,8 @@ import com.mannyHelp.web.service.ProgramareService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProgramareServiceImpl implements ProgramareService {
@@ -59,5 +61,17 @@ public class ProgramareServiceImpl implements ProgramareService {
                 .status(saved.getStatus())
                 .dataProgramare(saved.getDataProgramare())
                 .build();
+    }
+    @Override
+    public List<ProgramareDto> getProgramariByUserId(Long userId) {
+        List<Programare> programari = programareRepository.findByUserUserid(userId);
+        return programari.stream().map(p -> ProgramareDto.builder()
+                .serviceNume(p.getService() != null ? p.getService().getNumeServiciu() : null)
+                .providerNume(p.getProvider() != null ? p.getProvider().getNumeCompanie() : null)
+                .userNume(p.getUser() != null ? p.getUser().getNume() : null)
+                .status(p.getStatus())
+                .dataProgramare(p.getDataProgramare())
+                .build()
+        ).collect(Collectors.toList());
     }
 }
