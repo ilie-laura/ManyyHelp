@@ -5,6 +5,7 @@ import com.mannyHelp.web.service.ServiceService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -29,6 +30,21 @@ public class ServiceController {
 
         model.addAttribute("services", services);
 
-        return "mainPage"; // Numele fișierului HTML (Thymeleaf)
+        return "mainPage";
+    }
+    @GetMapping("/service/{id}")
+    public String getServiceDetails(@PathVariable("id") int id, Model model) {
+        ServiceDto service = servicesService.findServiceById(id);
+
+        if (service == null) {
+            return "redirect:/browse-services";
+        }
+
+
+        model.addAttribute("service", service);
+        // model.addAttribute("oferitor", oferitorServiciiService.findByServiceId(id));
+       //  model.addAttribute("reviews", recenzieService.findByServiceId(id));
+
+        return "service-details";
     }
 }
