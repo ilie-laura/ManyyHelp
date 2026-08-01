@@ -24,28 +24,25 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item"><a class="nav-link" href="#">Browse pros</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/browse-services}">Browse pros</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/users-list}">Current users</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">How it works</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">For pros</a></li>
             </ul>
 
             <div class="d-flex gap-2 align-items-center">
-
                 <!-- Avatar Utilizator Logat -->
                 <a th:if="${loggedUser != null}"
                    th:href="@{/users/{id}(id=${loggedUser.userid})}"
                    class="text-decoration-none d-flex align-items-center me-2"
                    title="Vezi profilul meu">
 
-                    <!-- Cazul 1: Are photourl -->
                     <img th:if="${loggedUser.photourl != null && !#strings.isEmpty(loggedUser.photourl)}"
                          th:src="${loggedUser.photourl}"
                          alt="User Avatar"
                          class="rounded-circle border border-2 border-info"
                          style="width: 40px; height: 40px; object-fit: cover;">
 
-                    <!-- Cazul 2: Fără photourl (Iconiță fallback) -->
                     <div th:unless="${loggedUser.photourl != null && !#strings.isEmpty(loggedUser.photourl)}"
                          class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center fw-bold border border-2 border-info"
                          style="width: 40px; height: 40px; font-size: 1.1rem;">
@@ -53,12 +50,10 @@
                     </div>
                 </a>
 
-                <!-- Formular Logout (dacă e logat) -->
                 <form th:if="${loggedUser != null}" th:action="@{/logout}" method="post" class="m-0 p-0 d-inline">
                     <button type="submit" class="btn btn-nav-custom btn-logout">Logout</button>
                 </form>
 
-                <!-- Buton Login (dacă NU e logat) -->
                 <a th:if="${loggedUser == null}" th:href="@{/login}" class="btn btn-nav-custom btn-login text-decoration-none">Login</a>
             </div>
         </div>
@@ -80,20 +75,39 @@
             Cleaners, technicians, electricians, plumbers and more — compare reviews, pick a time, and book in under a minute.
         </p>
 
-        <div class="d-flex flex-wrap gap-3 mb-5">
-            <a th:href="@{/users-list}" class="btn btn-find-pro text-decoration-none">
-                <i class="bi bi-search"></i> Find a pro
-            </a>
-            <a href="#" class="btn btn-list-business text-decoration-none">
-                List your business
-            </a>
-        </div>
+        <!-- Formular Unificat de Căutare (Service & Locație) -->
+        <form th:action="@{/browse-services}" method="get" class="card p-3 shadow-lg border-0 mb-5" style="max-width: 750px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 16px;">
+            <div class="row g-2 align-items-center">
+                <!-- Cuvânt cheie (Nume serviciu / meseriaș) -->
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" name="keyword" class="form-control border-0 shadow-none" placeholder="Ce serviciu cauți? (ex: Electrician)" th:value="${param.keyword}">
+                    </div>
+                </div>
+
+                <!-- Locație -->
+                <div class="col-md-4">
+                    <div class="input-group border-start">
+                        <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-geo-alt"></i></span>
+                        <input type="text" name="location" class="form-control border-0 shadow-none" placeholder="Oraș / Locație" th:value="${param.location}">
+                    </div>
+                </div>
+
+                <!-- Butonul Find -->
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-info text-white w-100 fw-bold py-2 rounded-3">
+                        <i class="bi bi-search me-1"></i> Find
+                    </button>
+                </div>
+            </div>
+        </form>
 
         <!-- Stats -->
         <div class="row pt-4 g-4" style="max-width: 600px;">
             <div class="col-4">
-                <div class="stat-number" th:text="${users != null ? #lists.size(users) + 'k+' : '12k+'}">12k+</div>
-                <div class="stat-label">Bookings Made</div>
+                <div class="stat-number" th:text="${services != null ? #lists.size(services) + '+' : '12k+'}">12k+</div>
+                <div class="stat-label">Services Listed</div>
             </div>
             <div class="col-4">
                 <div class="stat-number">1,800+</div>
@@ -107,73 +121,39 @@
     </div>
 </section>
 
-<!-- Top-rated Section -->
+<!-- Section Afișare Servicii -->
 <section class="pb-5">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="section-title mb-1">Top-rated near you</h3>
-                <p class="text-muted mb-0">A hand-picked selection of the highest-rated pros this week.</p>
+                <h3 class="section-title mb-1">Available Services</h3>
+                <p class="text-muted mb-0">Browse through top services matching your search criteria.</p>
             </div>
-            <a href="#" class="text-secondary text-decoration-none fw-semibold">Explore all →</a>
         </div>
 
         <div class="row g-4">
-            <!-- Rând dinamic din lista de UsersDto -->
-            <div class="col-md-4" th:each="u : ${users}">
-                <div class="pro-card">
-                    <div class="d-flex align-items-center gap-3 mb-3">
+            <!-- Rând dinamic din lista de ServiceDto -->
+            <div class="col-md-4" th:each="s : ${services}">
+                <div class="pro-card p-3 border rounded shadow-sm">
+                    <img th:if="${s.photourl != null && !#strings.isEmpty(s.photourl)}"
+                         th:src="${s.photourl}"
+                         class="img-fluid rounded mb-3"
+                         style="height: 160px; object-fit: cover; width: 100%;" alt="Service Photo">
 
-                        <!-- Poză de profil -->
-                        <img th:if="${u.photourl != null && !#strings.isEmpty(u.photourl)}"
-                             th:src="${u.photourl}"
-                             class="pro-avatar" style="object-fit: cover;" alt="Avatar">
+                    <h5 class="fw-bold mb-1" th:text="${s.numeServiciu}">Nume Serviciu</h5>
+                    <p class="text-muted small mb-2"><i class="bi bi-geo-alt"></i> <span th:text="${s.locatie}">București</span></p>
 
-                        <!-- Fallback prima literă din username -->
-                        <div th:unless="${u.photourl != null && !#strings.isEmpty(u.photourl)}"
-                             class="pro-avatar text-uppercase"
-                             th:text="${u.username != null ? #strings.substring(u.username, 0, 1) : 'U'}">
-                            U
-                        </div>
-
-                        <div>
-                            <h6 class="fw-bold mb-0">
-                                <span th:text="${u.nume != null ? u.nume + ' ' + (u.prenume != null ? u.prenume : '') : u.username}">Nume User</span>
-                                <i class="bi bi-patch-check-fill text-info ms-1"></i>
-                            </h6>
-                            <small class="text-muted">
-                                ★ 4.9 (128) • <i class="bi bi-geo-alt"></i> București
-                            </small>
-                        </div>
-                    </div>
-                    <p class="text-secondary small mb-3">
-                        Professional services provider verified by Trustlist. High quality work guaranteed.
-                    </p>
-                    <div class="d-flex gap-2">
-                        <span class="pro-tag" th:text="${u.userOrProvider ? 'Provider' : 'User'}">Provider</span>
-                        <span class="pro-tag">Verified</span>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="fw-bold text-info fs-5" th:text="${s.pret + ' RON'}">100 RON</span>
+                        <a href="#" class="btn btn-sm btn-outline-info rounded-pill px-3">Vezi detalii</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Card de rezervă dacă lista este goală -->
-            <div class="col-md-4" th:if="${users == null || #lists.isEmpty(users)}">
-                <div class="pro-card">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="pro-avatar">CC</div>
-                        <div>
-                            <h6 class="fw-bold mb-0">Clara Clean Co. <i class="bi bi-patch-check-fill text-info"></i></h6>
-                            <small class="text-muted">★ 4.9 (342) • Berlin</small>
-                        </div>
-                    </div>
-                    <p class="text-secondary small mb-3">
-                        A women-led cleaning crew serving Berlin homes and offices.
-                    </p>
-                    <div class="d-flex gap-2">
-                        <span class="pro-tag">Deep cleaning</span>
-                        <span class="pro-tag">Regular cleaning</span>
-                    </div>
-                </div>
+            <!-- Card de rezervă dacă nu există servicii găsite -->
+            <div class="col-12 text-center py-5" th:if="${services == null || #lists.isEmpty(services)}">
+                <i class="bi bi-search text-muted fs-1 mb-2 d-block"></i>
+                <h5 class="text-muted">Nu am găsit niciun serviciu conform căutării tale.</h5>
             </div>
         </div>
     </div>

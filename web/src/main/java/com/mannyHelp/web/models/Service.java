@@ -26,6 +26,7 @@ public class Service {
     private String photourl;
     private String Locatie;
 
+
     @CreationTimestamp
     private LocalDateTime createdon;
 

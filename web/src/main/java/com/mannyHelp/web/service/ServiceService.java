@@ -1,7 +1,10 @@
 package com.mannyHelp.web.service;
 
-import org.springframework.stereotype.Service;
+import com.mannyHelp.web.dto.ServiceDto;
+import java.util.List;
 
-@Service
 public interface ServiceService {
+    List<ServiceDto> findAllServices();
+    List<ServiceDto> searchServices(String keyword);
+    ServiceDto findServiceById(int id);
 }
