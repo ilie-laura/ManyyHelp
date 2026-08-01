@@ -38,8 +38,8 @@ public class ProgramareServiceImpl implements ProgramareService {
         OferitorServicii provider = oferitorRepository.findById((long) providerId)
                 .orElseThrow(() -> new RuntimeException("Furnizorul nu a fost găsit"));
 
-        // Construim cheia compusă BookingId
-        BookingId bookingId = new BookingId(Math.toIntExact(userId), serviceId, providerId);
+
+        BookingId bookingId = new BookingId(userId, serviceId, providerId);
 
         Programare programare = Programare.builder()
                 .programareid(bookingId)

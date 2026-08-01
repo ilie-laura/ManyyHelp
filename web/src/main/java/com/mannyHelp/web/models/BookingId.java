@@ -11,7 +11,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Embeddable
 public class BookingId implements Serializable {
-    private int userid;
+    private Long userid;
     private int serviceid;
     private int providerid;
 
