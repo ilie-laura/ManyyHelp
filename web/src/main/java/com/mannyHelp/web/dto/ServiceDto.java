@@ -14,4 +14,5 @@ public class ServiceDto {
     private String photourl;
     private String locatie;
     private LocalDateTime createdon;
+    private String categorie;
 }

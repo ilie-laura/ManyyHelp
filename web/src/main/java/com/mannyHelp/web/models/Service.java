@@ -25,7 +25,7 @@ public class Service {
     private Double pret;
     private String photourl;
     private String Locatie;
-
+    private String categorie;
 
     @CreationTimestamp
     private LocalDateTime createdon;

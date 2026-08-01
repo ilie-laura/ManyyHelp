@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface ServiceService {
     List<ServiceDto> findAllServices();
-    List<ServiceDto> searchServices(String keyword);
+    List<ServiceDto> searchServices(String keyword,String location);
     ServiceDto findServiceById(int id);
 }

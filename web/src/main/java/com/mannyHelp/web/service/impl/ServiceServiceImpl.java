@@ -23,11 +23,17 @@ public class ServiceServiceImpl implements ServiceService {
         List<Service> services = serviceRepository.findAll();
         return services.stream().map(this::mapToDto).collect(Collectors.toList());
     }
-
     @Override
-    public List<ServiceDto> searchServices(String keyword) {
-        List<Service> services = serviceRepository.searchServices(keyword);
-        return services.stream().map(this::mapToDto).collect(Collectors.toList());
+    public List<ServiceDto> searchServices(String keyword, String location) {
+        
+        String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        String cleanLocation = (location != null && !location.trim().isEmpty()) ? location.trim() : null;
+
+        List<Service> services = serviceRepository.searchServices(cleanKeyword, cleanLocation);
+
+        return services.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override

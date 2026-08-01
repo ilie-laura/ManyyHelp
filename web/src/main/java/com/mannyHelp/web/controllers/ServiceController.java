@@ -1,4 +1,5 @@
 package com.mannyHelp.web.controllers;
+
 import com.mannyHelp.web.dto.ServiceDto;
 import com.mannyHelp.web.service.ServiceService;
 import org.springframework.stereotype.Controller;
@@ -20,9 +21,12 @@ public class ServiceController {
     @GetMapping("/browse-services")
     public String browseServices(
             @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "location", required = false) String location, // <-- Aici adaugi parametrul
             Model model) {
 
-        List<ServiceDto> services = servicesService.searchServices(keyword);
+        // Acum ambii parametri sunt recunoscuți și trimiși către Service
+        List<ServiceDto> services = servicesService.searchServices(keyword, location);
+
         model.addAttribute("services", services);
 
         return "mainPage"; // Numele fișierului HTML (Thymeleaf)
