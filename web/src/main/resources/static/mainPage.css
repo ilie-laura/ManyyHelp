@@ -184,8 +184,9 @@ body {
     background: #e2e8f0;
     border-radius: 18px;
     padding: 24px;
-    border: 1px solid #cbd5e1;
-    height: 100%;
+    border: 1px solid #e2e8f0;     /* Border mai fin */
+    height: fit-content !important; /* SE AJUSTEAZĂ DINAMIC DUPĂ CONȚINUT */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .pro-avatar {

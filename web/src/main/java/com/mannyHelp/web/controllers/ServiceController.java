@@ -1,7 +1,10 @@
 package com.mannyHelp.web.controllers;
 
 import com.mannyHelp.web.dto.ServiceDto;
+import com.mannyHelp.web.models.Users;
 import com.mannyHelp.web.service.ServiceService;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,19 +21,20 @@ public class ServiceController {
     public ServiceController(ServiceService servicesService) {
         this.servicesService = servicesService;
     }
-
     @GetMapping("/browse-services")
-    public String browseServices(
-            @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "location", required = false) String location, // <-- Aici adaugi parametrul
-            Model model) {
+    public String browseServices(@RequestParam(required = false) String keyword,
+                                 @RequestParam(required = false) String location,
+                                 HttpSession session,
+                                 Model model) {
 
-        // Acum ambii parametri sunt recunoscuți și trimiși către Service
+
+
+
+
         List<ServiceDto> services = servicesService.searchServices(keyword, location);
-
         model.addAttribute("services", services);
 
-        return "mainPage";
+        return "mainPage"; 
     }
     @GetMapping("/service/{id}")
     public String getServiceDetails(@PathVariable("id") int id, Model model) {
