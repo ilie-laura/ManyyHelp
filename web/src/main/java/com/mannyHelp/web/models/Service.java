@@ -1,9 +1,6 @@
 package com.mannyHelp.web.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -19,7 +16,7 @@ import java.time.LocalDateTime;
 @Table
 public class Service {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // <-- OBLIGATORIU pentru PostgreSQL
     private int serviceid;
     private String numeServiciu;
     private Double pret;
@@ -30,5 +27,7 @@ public class Service {
     @CreationTimestamp
     private LocalDateTime createdon;
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "provider_id", nullable = false)
+    private Users provider;
 }

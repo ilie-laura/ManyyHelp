@@ -12,8 +12,9 @@ import lombok.*;
 @Entity
 @Table(name = "users")
 public class Users {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // <--- Adaugă (strategy = GenerationType.IDENTITY)
     private Long userid;
     private String username;
     private String password;

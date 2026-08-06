@@ -149,7 +149,16 @@
                                 <span th:text="${user != null && user.userOrProvider ? 'Furnizor de servicii (Provider)' : 'Client (User)'}">Utilizator</span>
                             </div>
                         </div>
+                        <div class="col-12 pt-3" th:if="${loggedUser != null && loggedUser.userOrProvider}">
+                            <a th:href="@{/services/new}"
+                               class="btn btn-success rounded-pill px-4"
+                               style="position: relative; z-index: 9999; cursor: pointer;">
+                                <i class="bi bi-plus-circle me-1"></i> Adaugă Serviciu Nou
+                            </a>
+                        </div>
                     </div>
+                    <!-- Apare DOAR dacă user-ul logat este furnizor (userOrProvider == true) -->
+
                 </div>
                 <!-- Secțiune Programări -->
                 <div class="pro-card p-4 mb-4">

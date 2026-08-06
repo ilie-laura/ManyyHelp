@@ -5,6 +5,7 @@ import com.mannyHelp.web.dto.UsersDto;
 import com.mannyHelp.web.models.Users;
 import com.mannyHelp.web.repository.UsersRepository;
 import com.mannyHelp.web.service.UsersService;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,8 @@ public class UsersServiceImpl implements UsersService {
     }
 
 
-
+@Override
+@Transactional
     public void saveUser(UsersDto dto) {
         Users user = new Users();
         user.setUsername(dto.getUsername());

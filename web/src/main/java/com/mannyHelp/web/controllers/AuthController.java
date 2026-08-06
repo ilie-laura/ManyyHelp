@@ -25,6 +25,7 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerPage(Model model) {
+
         model.addAttribute("user", new UsersDto());
         return "register";
     }
@@ -32,7 +33,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute("user") UsersDto userDto) {
+
+        System.out.println("Salvez userul: " + userDto.getUsername());
+
         usersService.saveUser(userDto);
+
+
         return "redirect:/login?success";
     }
 }

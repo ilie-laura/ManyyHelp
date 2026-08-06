@@ -2,10 +2,14 @@ package com.mannyHelp.web.service.impl;
 
 import com.mannyHelp.web.dto.ServiceDto;
 import com.mannyHelp.web.models.Service;
+import com.mannyHelp.web.models.Users;
 import com.mannyHelp.web.repository.ServiceRepository;
+import com.mannyHelp.web.repository.UsersRepository;
 import com.mannyHelp.web.service.ServiceService;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,9 +17,11 @@ import java.util.stream.Collectors;
 public class ServiceServiceImpl implements ServiceService {
 
     private final ServiceRepository serviceRepository;
+    private final UsersRepository usersRepository;
 
-    public ServiceServiceImpl(ServiceRepository serviceRepository) {
+    public ServiceServiceImpl(ServiceRepository serviceRepository, UsersRepository usersRepository) {
         this.serviceRepository = serviceRepository;
+        this.usersRepository = usersRepository;
     }
 
     @Override
@@ -51,5 +57,27 @@ public class ServiceServiceImpl implements ServiceService {
                 .locatie(service.getLocatie())
                 .createdon(service.getCreatedon())
                 .build();
+    }
+    @Override
+    public void saveService(ServiceDto serviceDto) {
+
+
+        Users provider = usersRepository.findById(serviceDto.getProviderId())
+                .orElseThrow(() -> new RuntimeException("Provider not found"));
+
+
+        Service service = new Service();
+        service.setNumeServiciu(serviceDto.getNumeServiciu());
+        service.setPret(serviceDto.getPret());
+        service.setPhotourl(serviceDto.getPhotourl());
+        service.setLocatie(serviceDto.getLocatie());
+        service.setCategorie(serviceDto.getCategorie());
+        service.setCreatedon(LocalDateTime.now());
+
+
+        service.setProvider(provider);
+
+
+        serviceRepository.save(service);
     }
 }

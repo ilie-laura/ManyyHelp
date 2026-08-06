@@ -17,9 +17,11 @@ public class UsersController {
 
     private final UsersService usersService;
     private final ProgramareService programareService;
-    public UsersController(UsersService usersService, ProgramareService programareService) {
+
+    public UsersController(UsersService usersService, ProgramareService programareService ) {
         this.usersService = usersService;
         this.programareService = programareService;
+
     }
 
     @GetMapping("/mainPage")
@@ -44,10 +46,14 @@ public class UsersController {
     }
 
     @GetMapping("/users/{id}")
-    public String getUserProfile(@PathVariable("id") Long id, Model model) {
+    public String getUserProfile(@PathVariable("id") Long id, Model model,Principal principal) {
         UsersDto user = usersService.findUserById(id);
         model.addAttribute("user", user);
-
+        UsersDto loggedUser = null;
+        if (principal != null) {
+            loggedUser = usersService.findUserByUsername(principal.getName());
+        }
+        model.addAttribute("loggedUser", loggedUser);
 
         List<ProgramareDto> programari = programareService.getProgramariByUserId(id);
         model.addAttribute("programari", programari);
