@@ -2,8 +2,11 @@ package com.mannyHelp.web.controllers;
 
 import com.mannyHelp.web.dto.ProgramareDto;
 import com.mannyHelp.web.dto.UsersDto;
+import com.mannyHelp.web.models.Users;
+import com.mannyHelp.web.service.CustomUserDetails;
 import com.mannyHelp.web.service.ProgramareService;
 import com.mannyHelp.web.service.UsersService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -44,18 +47,30 @@ public class UsersController {
         model.addAttribute("users", usersList);
         return "users-list";
     }
-
     @GetMapping("/users/{id}")
-    public String getUserProfile(@PathVariable("id") Long id, Model model,Principal principal) {
-        UsersDto user = usersService.findUserById(id);
-        model.addAttribute("user", user);
-        UsersDto loggedUser = null;
-        if (principal != null) {
-            loggedUser = usersService.findUserByUsername(principal.getName());
-        }
-        model.addAttribute("loggedUser", loggedUser);
+    public String userDetails(@PathVariable("id") Long userId,
+                              @AuthenticationPrincipal CustomUserDetails customUser,
+                              Model model) {
 
-        List<ProgramareDto> programari = programareService.getProgramariByUserId(id);
+
+        UsersDto user = usersService.findUserById(userId);
+
+
+        UsersDto loggedUser = null;
+        if (customUser != null) {
+            loggedUser = usersService.findUserByUsername(customUser.getUsername());
+        }
+
+
+        List<ProgramareDto> programari;
+        if (Boolean.TRUE.equals(user.getUserOrProvider())) {
+            programari = programareService.getProgramariByProviderUserId(userId);
+        } else {
+            programari = programareService.getProgramariByUserId(userId);
+        }
+
+        model.addAttribute("user", user);
+        model.addAttribute("loggedUser", loggedUser);
         model.addAttribute("programari", programari);
 
         return "user-details";

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${service.numeServiciu} + ' - Trustlist'">Detalii Serviciu</title>
+    <title th:text="${service != null ? service.numeServiciu + ' - Trustlist' : 'Detalii Serviciu'}">Detalii Serviciu</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,20 +23,28 @@
     </div>
 </nav>
 
-<div class="container py-5">
+<div class="container py-5" th:if="${service != null}">
     <div class="row g-4">
 
         <!-- Detalii Serviciu & Oferitor -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-                <img th:if="${service.photourl != null}" th:src="${service.photourl}" class="img-fluid rounded-4 mb-4" style="max-height: 400px; object-fit: cover; width: 100%;" alt="Fotografie serviciu">
+                <img th:if="${service.photourl != null && !#strings.isEmpty(service.photourl)}"
+                     th:src="${service.photourl}"
+                     class="img-fluid rounded-4 mb-4"
+                     style="max-height: 400px; object-fit: cover; width: 100%;"
+                     alt="Fotografie serviciu">
 
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <h2 class="fw-bold mb-0" th:text="${service.numeServiciu}">Nume Serviciu</h2>
-                    <span class="badge bg-info text-white fs-6 px-3 py-2 rounded-pill" th:text="${service.pret + ' RON'}">100 RON</span>
+                    <span class="badge bg-info text-white fs-6 px-3 py-2 rounded-pill"
+                          th:text="${(service.pret != null ? service.pret : 0) + ' RON'}">100 RON</span>
                 </div>
 
-                <p class="text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i> <span th:text="${service.locatie}">Locație</span></p>
+                <p class="text-muted">
+                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                    <span th:text="${service.locatie != null ? service.locatie : 'Nespecificată'}">Locație</span>
+                </p>
 
                 <hr class="my-4">
 
@@ -88,8 +96,9 @@
                     <!-- ID-ul serviciului curent -->
                     <input type="hidden" name="serviceId" th:value="${service.serviceid}">
 
-                    <!-- ID-ul furnizorului asignat serviciului -->
-                    <input type="hidden" name="providerId" th:value="${oferitor != null ? oferitor.providerid : 1}">
+                    <!-- ID-ul furnizorului asignat (EVALUAT ÎN SIGURANȚĂ) -->
+                    <input type="hidden" name="providerId"
+                           th:value="${oferitor != null ? oferitor.providerid : (service != null && service.oferitorServicii != null ? service.oferitorServicii.providerid : 0)}" />
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Data programării</label>
@@ -109,6 +118,14 @@
         </div>
 
     </div>
+</div>
+
+<!-- Mesaj de eroare dacă obiectul 'service' nu a fost găsit în model -->
+<div class="container py-5 text-center" th:if="${service == null}">
+    <div class="alert alert-warning">
+        Serviciul solicitat nu a fost găsit sau nu mai este disponibil.
+    </div>
+    <a th:href="@{/browse-services}" class="btn btn-primary">Înapoi la servicii</a>
 </div>
 
 </body>

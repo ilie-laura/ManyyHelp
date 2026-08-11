@@ -2,6 +2,7 @@ package com.mannyHelp.web.models;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -10,10 +11,11 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
+@EqualsAndHashCode
 public class BookingId implements Serializable {
     private Long userid;
     private int serviceid;
-    private int providerid;
+    private Long providerid;
 
 //    public BookingId() {}
 //

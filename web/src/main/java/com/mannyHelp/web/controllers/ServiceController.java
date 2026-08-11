@@ -1,8 +1,10 @@
 package com.mannyHelp.web.controllers;
 
+import com.mannyHelp.web.dto.OferitorServiciiDto;
 import com.mannyHelp.web.dto.ServiceDto;
 import com.mannyHelp.web.dto.UsersDto;
 import com.mannyHelp.web.models.Users;
+import com.mannyHelp.web.service.OferitorServiciiService;
 import com.mannyHelp.web.service.ServiceService;
 import com.mannyHelp.web.service.UsersService;
 import jakarta.servlet.http.HttpSession;
@@ -19,10 +21,12 @@ public class ServiceController {
 
     private final ServiceService servicesService;
     private final UsersService usersService;
+    private final OferitorServiciiService oferitorServiciiService;
 
-    public ServiceController(ServiceService servicesService, UsersService usersService) {
+    public ServiceController(ServiceService servicesService, UsersService usersService, OferitorServiciiService oferitorServiciiService) {
         this.servicesService = servicesService;
         this.usersService = usersService;
+        this.oferitorServiciiService = oferitorServiciiService;
     }
     @GetMapping("/browse-services")
     public String browseServices(@RequestParam(required = false) String keyword,
@@ -40,17 +44,18 @@ public class ServiceController {
         return "mainPage"; 
     }
     @GetMapping("/service/{id}")
-    public String getServiceDetails(@PathVariable("id") int id, Model model) {
-        ServiceDto service = servicesService.findServiceById(id);
+    public String getServiceDetails(@PathVariable("id") int serviceId, Model model) {
 
-        if (service == null) {
-            return "redirect:/browse-services";
-        }
+        // Preluăm serviciul (poate fi ServiceDto sau Service entity)
+        ServiceDto serviceDto = servicesService.findServiceById(serviceId);
 
+        // Preluăm furnizorul
 
-        model.addAttribute("service", service);
-        // model.addAttribute("oferitor", oferitorServiciiService.findByServiceId(id));
-       //  model.addAttribute("reviews", recenzieService.findByServiceId(id));
+        OferitorServiciiDto oferitorDto = oferitorServiciiService.findByServiceId(serviceId);
+
+        // ⚠️ ATENȚIE LA NUMELE ATRIBUTELOR DIN MODEL:
+        model.addAttribute("service", serviceDto);
+        model.addAttribute("oferitor", oferitorDto); // Dacă acest nume diferă de cel din HTML, va da eroare!
 
         return "service-details";
     }

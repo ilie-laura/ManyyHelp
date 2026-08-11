@@ -30,4 +30,7 @@ public class Users {
     }
 
 
+    public String getPhotourl() {
+        return  photourl;
+    }
 }

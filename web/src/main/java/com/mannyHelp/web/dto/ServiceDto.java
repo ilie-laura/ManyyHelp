@@ -1,14 +1,13 @@
 package com.mannyHelp.web.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.mannyHelp.web.models.OferitorServicii;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceDto {
@@ -21,4 +20,6 @@ public class ServiceDto {
     private String categorie;
 
     private Long providerId;
+
+
 }

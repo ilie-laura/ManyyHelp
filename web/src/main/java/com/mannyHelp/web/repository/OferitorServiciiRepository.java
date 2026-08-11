@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface OferitorServiciiRepository extends JpaRepository<OferitorServicii,Long> {
 
-
+    Optional<OferitorServicii> findByUserUserid(Long userid);
 }

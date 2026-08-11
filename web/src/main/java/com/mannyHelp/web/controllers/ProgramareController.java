@@ -13,10 +13,9 @@ import java.time.LocalDateTime;
 @Controller
 public class ProgramareController {
 
-    // 1. Declarăm serviciul ca câmp final în controller
-    private final ProgramareService programareService;
 
-    // 2. Îl injectăm prin constructor
+    private final ProgramareService programareService;
+    
     public ProgramareController(ProgramareService programareService) {
         this.programareService = programareService;
     }
@@ -24,7 +23,7 @@ public class ProgramareController {
     @PostMapping("/book-service")
     public String bookService(
             @RequestParam("serviceId") int serviceId,
-            @RequestParam("providerId") int providerId,
+            @RequestParam("providerId") Long providerId,
             @RequestParam("bookingDate") String bookingDate,
             @RequestParam("bookingTime") String bookingTime,
             @AuthenticationPrincipal CustomUserDetails loggedUser,

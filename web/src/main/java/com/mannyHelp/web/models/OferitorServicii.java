@@ -16,8 +16,8 @@ import java.util.List;
 @Table
 public class OferitorServicii {
     @Id
-    @GeneratedValue
-    private int providerid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long providerid;
 
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Recenzie> reviews = new ArrayList<>();

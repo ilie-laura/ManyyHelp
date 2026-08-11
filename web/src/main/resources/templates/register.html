@@ -111,12 +111,39 @@
             <div class="form-text">Adaugă link-ul unei imagini pentru profilul tău.</div>
         </div>
 
+        <!-- Select Tip Cont -->
         <div class="mb-4">
             <label class="form-label fw-semibold">Tip Cont</label>
-            <select th:field="*{userOrProvider}" class="form-select">
+            <select id="userTypeSelect" th:field="*{userOrProvider}" class="form-select" onchange="toggleProviderFields()">
                 <option th:value="false">Client (User)</option>
                 <option th:value="true">Prestator (Provider)</option>
             </select>
+        </div>
+
+        <!-- Câmpuri suplimentare pentru Prestator (Ascunse implicit) -->
+        <div id="providerFields" style="display: none;" class="p-3 mb-4 rounded-3 border bg-light">
+            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-briefcase me-1"></i> Detalii Prestator Servicii</h6>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Nume Companie / Firmă</label>
+                <input type="text" name="numeCompanie" class="form-control" placeholder="SC Tech SRL">
+            </div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label class="form-label fw-semibold">CUI / CIF</label>
+                    <input type="text" name="cui" class="form-control" placeholder="RO12345678">
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-semibold">Telefon Contact</label>
+                    <input type="tel" name="telefonContact" class="form-control" placeholder="0712345678">
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label fw-semibold">Descriere Servicii Oferite</label>
+                <textarea name="descriereServicii" class="form-control" rows="3" placeholder="Scurtă descriere a serviciilor..."></textarea>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-auth mb-3">Înregistrează-te</button>
@@ -126,6 +153,23 @@
         </p>
     </form>
 </div>
+
+<!-- Script JS pentru afișare dinamică -->
+<script>
+    function toggleProviderFields() {
+        const selectElement = document.getElementById('userTypeSelect');
+        const providerFields = document.getElementById('providerFields');
+
+        if (selectElement.value === 'true') {
+            providerFields.style.display = 'block';
+        } else {
+            providerFields.style.display = 'none';
+        }
+    }
+
+    // Execută la încărcare
+    document.addEventListener('DOMContentLoaded', toggleProviderFields);
+</script>
 
 </body>
 </html>

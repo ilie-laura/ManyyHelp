@@ -32,12 +32,12 @@ public class ProgramareServiceImpl implements ProgramareService {
     }
 
     @Override
-    public ProgramareDto createProgramare(Long userId, int serviceId, int providerId, LocalDateTime dataProgramare) {
+    public ProgramareDto createProgramare(Long userId, int serviceId, Long providerId, LocalDateTime dataProgramare) {
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit"));
         com.mannyHelp.web.models.Service service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Serviciul nu a fost găsit"));
-        OferitorServicii provider = oferitorRepository.findById((long) providerId)
+        OferitorServicii provider = oferitorRepository.findById(providerId)
                 .orElseThrow(() -> new RuntimeException("Furnizorul nu a fost găsit"));
 
 
@@ -69,6 +69,21 @@ public class ProgramareServiceImpl implements ProgramareService {
                 .serviceNume(p.getService() != null ? p.getService().getNumeServiciu() : null)
                 .providerNume(p.getProvider() != null ? p.getProvider().getNumeCompanie() : null)
                 .userNume(p.getUser() != null ? p.getUser().getNume() : null)
+                .status(p.getStatus())
+                .dataProgramare(p.getDataProgramare())
+                .build()
+        ).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProgramareDto> getProgramariByProviderUserId(Long providerUserId) {
+
+        List<Programare> programari = programareRepository.findByProviderUserUserid(providerUserId);
+
+        return programari.stream().map(p -> ProgramareDto.builder()
+                .serviceNume(p.getService() != null ? p.getService().getNumeServiciu() : null)
+                .providerNume(p.getProvider() != null ? p.getProvider().getNumeCompanie() : null)
+                .userNume(p.getUser() != null ? (p.getUser().getNume() + " " + p.getUser().getPrenume()) : null)
                 .status(p.getStatus())
                 .dataProgramare(p.getDataProgramare())
                 .build()

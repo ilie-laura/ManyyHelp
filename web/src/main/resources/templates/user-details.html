@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${user != null ? user.nume + ' ' + user.prenume + ' - Profil Trustlist' : 'Profil Utilizator - Trustlist'}">Profil Utilizator - Trustlist</title>
+    <title th:text="${user != null ? user.nume + ' ' + (user.prenume != null ? user.prenume : '') + ' - Profil Trustlist' : 'Profil Utilizator - Trustlist'}">Profil Utilizator - Trustlist</title>
 
     <!-- Bootstrap 5, Icons & Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<!-- Navbar (Identic cu cel de pe MainPage) -->
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white">
     <div class="container">
         <a class="navbar-brand fw-bold" th:href="@{/}">
@@ -34,20 +34,20 @@
 
             <div class="d-flex gap-2 align-items-center">
 
-                <!-- Avatar Utilizator Logat -->
+                <!-- Avatar Utilizator Logat (Evaluat în siguranță) -->
                 <a th:if="${loggedUser != null}"
                    th:href="@{/users/{id}(id=${loggedUser.userid})}"
                    class="text-decoration-none d-flex align-items-center me-2"
                    title="Vezi profilul meu">
 
-                    <!-- Cazul 1: Are photourl -->
+                    <!-- Poză profil logat -->
                     <img th:if="${loggedUser.photourl != null && !#strings.isEmpty(loggedUser.photourl)}"
                          th:src="${loggedUser.photourl}"
                          alt="User Avatar"
                          class="rounded-circle border border-2 border-info"
                          style="width: 40px; height: 40px; object-fit: cover;">
 
-                    <!-- Cazul 2: Fără photourl (Iconiță fallback) -->
+                    <!-- Fallback dacă nu are poză -->
                     <div th:unless="${loggedUser.photourl != null && !#strings.isEmpty(loggedUser.photourl)}"
                          class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center fw-bold border border-2 border-info"
                          style="width: 40px; height: 40px; font-size: 1.1rem;">
@@ -149,21 +149,21 @@
                                 <span th:text="${user != null && user.userOrProvider ? 'Furnizor de servicii (Provider)' : 'Client (User)'}">Utilizator</span>
                             </div>
                         </div>
+
                         <div class="col-12 pt-3" th:if="${loggedUser != null && loggedUser.userOrProvider}">
-                            <a th:href="@{/services/new}"
-                               class="btn btn-success rounded-pill px-4"
-                               style="position: relative; z-index: 9999; cursor: pointer;">
+                            <a th:href="@{/services/new}" class="btn btn-success rounded-pill px-4">
                                 <i class="bi bi-plus-circle me-1"></i> Adaugă Serviciu Nou
                             </a>
                         </div>
                     </div>
-                    <!-- Apare DOAR dacă user-ul logat este furnizor (userOrProvider == true) -->
-
                 </div>
+
                 <!-- Secțiune Programări -->
                 <div class="pro-card p-4 mb-4">
                     <h5 class="fw-bold mb-4 border-bottom pb-3">
-                        <i class="bi bi-calendar-check text-info me-2"></i>Programările mele
+                        <i class="bi bi-calendar-check text-info me-2"></i>
+                        <span th:if="${user != null && user.userOrProvider}">Programări Primite (Furnizor)</span>
+                        <span th:unless="${user != null && user.userOrProvider}">Programările Mele (Client)</span>
                     </h5>
 
                     <!-- Lista de programări existente -->
@@ -172,7 +172,8 @@
                             <thead class="table-light">
                             <tr>
                                 <th>Serviciu</th>
-                                <th>Furnizor</th>
+                                <th th:if="${user != null && user.userOrProvider}">Client</th>
+                                <th th:unless="${user != null && user.userOrProvider}">Furnizor</th>
                                 <th>Data & Ora</th>
                                 <th>Status</th>
                             </tr>
@@ -180,29 +181,36 @@
                             <tbody>
                             <tr th:each="p : ${programari}">
                                 <td class="fw-semibold text-dark" th:text="${p.serviceNume != null ? p.serviceNume : '-'}">Reparații sanitare</td>
-                                <td class="text-secondary" th:text="${p.providerNume != null ? p.providerNume : '-'}">AquaSan SRL</td>
+
+                                <!-- Cazul 1: Dacă profilul e de Provider, arătăm Clientul -->
+                                <td th:if="${user != null && user.userOrProvider}" class="text-secondary" th:text="${p.userNume != null ? p.userNume : '-'}">Ion Popescu</td>
+
+                                <!-- Cazul 2: Dacă profilul e de Client, arătăm Furnizorul -->
+                                <td th:unless="${user != null && user.userOrProvider}" class="text-secondary" th:text="${p.providerNume != null ? p.providerNume : '-'}">AquaSan SRL</td>
+
                                 <td>
                                     <i class="bi bi-clock me-1 text-muted"></i>
                                     <span th:text="${p.dataProgramare != null ? #temporals.format(p.dataProgramare, 'dd-MM-yyyy HH:mm') : '-'}">12-08-2026 14:00</span>
                                 </td>
                                 <td>
-                        <span class="badge rounded-pill"
-                              th:classappend="${p.status == 'APPROVED' ? 'bg-success' : (p.status == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark')}"
-                              th:text="${p.status != null ? p.status : 'PENDING'}">
-                            PENDING
-                        </span>
+                                    <span class="badge rounded-pill"
+                                          th:classappend="${p.status == 'APPROVED' ? 'bg-success' : (p.status == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark')}"
+                                          th:text="${p.status != null ? p.status : 'PENDING'}">
+                                        PENDING
+                                    </span>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Mesaj dacă utilizatorul nu are nicio programare -->
+                    <!-- Mesaj dacă nu există programări -->
                     <div th:if="${programari == null || #lists.isEmpty(programari)}" class="text-center py-4 text-muted">
                         <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
-                        <p class="mb-0">Nu ai nici o programare înregistrată momentan.</p>
+                        <p class="mb-0">Nu există nicio programare înregistrată momentan.</p>
                     </div>
                 </div>
+
                 <!-- Butoane Navigare -->
                 <div class="d-flex gap-3">
                     <a th:href="@{/}" class="btn btn-list-business text-decoration-none">
