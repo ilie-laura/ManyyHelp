@@ -3,8 +3,11 @@ package com.mannyHelp.web.controllers;
 import com.mannyHelp.web.dto.OferitorServiciiDto;
 import com.mannyHelp.web.dto.ServiceDto;
 import com.mannyHelp.web.dto.UsersDto;
+import com.mannyHelp.web.models.Recenzie;
+import com.mannyHelp.web.models.Service;
 import com.mannyHelp.web.models.Users;
 import com.mannyHelp.web.service.OferitorServiciiService;
+import com.mannyHelp.web.service.RecenzieService;
 import com.mannyHelp.web.service.ServiceService;
 import com.mannyHelp.web.service.UsersService;
 import jakarta.servlet.http.HttpSession;
@@ -22,11 +25,13 @@ public class ServiceController {
     private final ServiceService servicesService;
     private final UsersService usersService;
     private final OferitorServiciiService oferitorServiciiService;
+    private final RecenzieService recenzieService;
 
-    public ServiceController(ServiceService servicesService, UsersService usersService, OferitorServiciiService oferitorServiciiService) {
+    public ServiceController(ServiceService servicesService, UsersService usersService, OferitorServiciiService oferitorServiciiService, RecenzieService recenzieService) {
         this.servicesService = servicesService;
         this.usersService = usersService;
         this.oferitorServiciiService = oferitorServiciiService;
+        this.recenzieService = recenzieService;
     }
     @GetMapping("/browse-services")
     public String browseServices(@RequestParam(required = false) String keyword,
@@ -44,18 +49,39 @@ public class ServiceController {
         return "mainPage"; 
     }
     @GetMapping("/service/{id}")
-    public String getServiceDetails(@PathVariable("id") int serviceId, Model model) {
+    public String getServiceDetails(@PathVariable("id") int serviceId,
+                                    Model model,
+                                    java.security.Principal principal) { // 1. Adaugă Principal
 
-        // Preluăm serviciul (poate fi ServiceDto sau Service entity)
         ServiceDto serviceDto = servicesService.findServiceById(serviceId);
-
-        // Preluăm furnizorul
-
         OferitorServiciiDto oferitorDto = oferitorServiciiService.findByServiceId(serviceId);
 
-        // ⚠️ ATENȚIE LA NUMELE ATRIBUTELOR DIN MODEL:
+        // 2. Preluăm utilizatorul logat
+        UsersDto loggedUser = null;
+        if (principal != null) {
+            loggedUser = usersService.findUserByUsername(principal.getName());
+        }
+
+        List<Recenzie> reviews = null;
+        double averageRating = 0.0;
+
+        Long targetProviderId = null;
+        if (oferitorDto != null && oferitorDto.getProviderid() != null) {
+            targetProviderId = oferitorDto.getProviderid();
+        } else if (serviceDto != null) {
+            targetProviderId = serviceDto.getProviderId();
+        }
+
+        if (targetProviderId != null) {
+            reviews = recenzieService.getRecenziiByProvider(targetProviderId);
+            averageRating = recenzieService.getAverageRatingByProvider(targetProviderId);
+        }
+
         model.addAttribute("service", serviceDto);
-        model.addAttribute("oferitor", oferitorDto); // Dacă acest nume diferă de cel din HTML, va da eroare!
+        model.addAttribute("oferitor", oferitorDto);
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("averageRating", averageRating);
+        model.addAttribute("loggedUser", loggedUser); // 3. Adaugă loggedUser în Model!
 
         return "service-details";
     }

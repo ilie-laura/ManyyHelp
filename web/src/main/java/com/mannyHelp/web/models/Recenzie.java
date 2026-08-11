@@ -32,6 +32,7 @@ public class Recenzie{
     private int rating;
     private String comment;
     private LocalDateTime createdAt;
-
+    private String providerResponse;
+    private LocalDateTime responseCreatedAt;
 
 }
