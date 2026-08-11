@@ -176,6 +176,8 @@
                                 <th th:unless="${user != null && user.userOrProvider}">Furnizor</th>
                                 <th>Data & Ora</th>
                                 <th>Status</th>
+                                <!-- Coloană nouă pentru Acțiuni (vizibilă doar pentru furnizor pe profilul propriu) -->
+                                <th th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid && user.userOrProvider}">Acțiuni</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -198,6 +200,24 @@
                                           th:text="${p.status != null ? p.status : 'PENDING'}">
                                         PENDING
                                     </span>
+                                </td>
+
+                                <!-- Schimbare Status Programare (Se trimit ID-urile cheii compuse BookingId) -->
+                                <td th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid && user.userOrProvider}">
+                                    <form th:action="@{/programari/status}" method="post" class="d-flex gap-1 align-items-center">
+                                        <input type="hidden" name="userId" th:value="${p.userId}" />
+                                        <input type="hidden" name="serviceId" th:value="${p.serviceId}" />
+                                        <input type="hidden" name="providerId" th:value="${p.providerId}" />
+
+                                        <select name="status" class="form-select form-select-sm" style="width: auto;">
+                                            <option value="PENDING" th:selected="${p.status == 'PENDING'}">PENDING</option>
+                                            <option value="APPROVED" th:selected="${p.status == 'APPROVED'}">APPROVED</option>
+                                            <option value="CANCELLED" th:selected="${p.status == 'CANCELLED'}">CANCELLED</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-info" title="Salvează statusul">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             </tbody>

@@ -115,4 +115,20 @@ public class UsersController {
         usersService.deleteUser(username);
         return "redirect:/users-list?deleted";
     }
+    @PostMapping("/programari/status")
+    public String updateProgramareStatus(@RequestParam("userId") Long userId,
+                                         @RequestParam("serviceId") Long serviceId,
+                                         @RequestParam("providerId") Long providerId,
+                                         @RequestParam("status") String status,
+                                         @AuthenticationPrincipal CustomUserDetails customUser) {
+        if (customUser == null) {
+            return "redirect:/login";
+        }
+
+
+        programareService.updateStatus(userId, serviceId, providerId, status);
+
+        UsersDto loggedUser = usersService.findUserByUsername(customUser.getUsername());
+        return "redirect:/users/" + loggedUser.getUserid();
+    }
 }

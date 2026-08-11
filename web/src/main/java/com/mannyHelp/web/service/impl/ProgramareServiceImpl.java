@@ -32,14 +32,13 @@ public class ProgramareServiceImpl implements ProgramareService {
     }
 
     @Override
-    public ProgramareDto createProgramare(Long userId, int serviceId, Long providerId, LocalDateTime dataProgramare) {
+    public void createProgramare(Long userId, int serviceId, Long providerId, LocalDateTime dataProgramare) {
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit"));
         com.mannyHelp.web.models.Service service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Serviciul nu a fost găsit"));
         OferitorServicii provider = oferitorRepository.findById(providerId)
                 .orElseThrow(() -> new RuntimeException("Furnizorul nu a fost găsit"));
-
 
         BookingId bookingId = new BookingId(userId, serviceId, providerId);
 
@@ -52,23 +51,20 @@ public class ProgramareServiceImpl implements ProgramareService {
                 .dataProgramare(dataProgramare)
                 .build();
 
-        Programare saved = programareRepository.save(programare);
-
-        return ProgramareDto.builder()
-                .userNume(user.getNume())
-                .serviceNume(service.getNumeServiciu())
-                .providerNume(provider.getNumeCompanie())
-                .status(saved.getStatus())
-                .dataProgramare(saved.getDataProgramare())
-                .build();
+        programareRepository.save(programare);
     }
+
     @Override
     public List<ProgramareDto> getProgramariByUserId(Long userId) {
         List<Programare> programari = programareRepository.findByUserUserid(userId);
         return programari.stream().map(p -> ProgramareDto.builder()
+                .userId(p.getProgramareid() != null ? p.getProgramareid().getUserId() : null)
+                .serviceId(p.getProgramareid() != null ? (long) p.getProgramareid().getServiceId() : null)
+                .providerId(p.getProgramareid() != null ? p.getProgramareid().getProviderId() : null)
+
                 .serviceNume(p.getService() != null ? p.getService().getNumeServiciu() : null)
                 .providerNume(p.getProvider() != null ? p.getProvider().getNumeCompanie() : null)
-                .userNume(p.getUser() != null ? p.getUser().getNume() : null)
+                .userNume(p.getUser() != null ? (p.getUser().getNume() + " " + (p.getUser().getPrenume() != null ? p.getUser().getPrenume() : "")) : null)
                 .status(p.getStatus())
                 .dataProgramare(p.getDataProgramare())
                 .build()
@@ -77,16 +73,34 @@ public class ProgramareServiceImpl implements ProgramareService {
 
     @Override
     public List<ProgramareDto> getProgramariByProviderUserId(Long providerUserId) {
-
         List<Programare> programari = programareRepository.findByProviderUserUserid(providerUserId);
 
         return programari.stream().map(p -> ProgramareDto.builder()
+                .userId(p.getProgramareid() != null ? p.getProgramareid().getUserId() : null)
+                // Conversie sigură fără NullPointerException
+                .serviceId(p.getProgramareid() != null ? (long) p.getProgramareid().getServiceId() : null)
+                .providerId(p.getProgramareid() != null ? p.getProgramareid().getProviderId() : null)
+
                 .serviceNume(p.getService() != null ? p.getService().getNumeServiciu() : null)
                 .providerNume(p.getProvider() != null ? p.getProvider().getNumeCompanie() : null)
-                .userNume(p.getUser() != null ? (p.getUser().getNume() + " " + p.getUser().getPrenume()) : null)
+                .userNume(p.getUser() != null ? (p.getUser().getNume() + " " + (p.getUser().getPrenume() != null ? p.getUser().getPrenume() : "")) : null)
                 .status(p.getStatus())
                 .dataProgramare(p.getDataProgramare())
                 .build()
         ).collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateStatus(Long userId, Long serviceId, Long providerId, String newStatus) {
+        if (serviceId == null || userId == null || providerId == null) {
+            throw new IllegalArgumentException("ID-urile necesare pentru identificarea programării nu pot fi null!");
+        }
+
+        BookingId bookingId = new BookingId(userId, Math.toIntExact(serviceId), providerId);
+        Programare programare = programareRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită!"));
+
+        programare.setStatus(newStatus);
+        programareRepository.save(programare);
     }
 }

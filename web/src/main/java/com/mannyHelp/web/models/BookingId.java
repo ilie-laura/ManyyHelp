@@ -1,21 +1,20 @@
 package com.mannyHelp.web.models;
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Objects;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Embeddable
 @EqualsAndHashCode
 public class BookingId implements Serializable {
-    private Long userid;
-    private int serviceid;
-    private Long providerid;
+    private Long userId;
+    private int serviceId;
+    private Long providerId;
 
 //    public BookingId() {}
 //
@@ -39,6 +38,6 @@ public class BookingId implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(userid, serviceid, providerid);
+        return Objects.hash(userId, serviceId, providerId);
     }
 }

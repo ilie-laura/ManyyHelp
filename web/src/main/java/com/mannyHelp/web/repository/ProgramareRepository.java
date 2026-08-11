@@ -11,7 +11,7 @@ import java.util.List;
 public interface ProgramareRepository extends JpaRepository<Programare, BookingId> {
 
     List<Programare> findByUserUserid(Long userId);
-    List<Programare> findByProgramareidProviderid(int providerId);
+    List<Programare> findByProgramareidProviderId(Long providerId);
 
     List<Programare> findByProviderUserUserid(Long userId);
 }

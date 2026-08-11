@@ -10,5 +10,9 @@ public class ProgramareDto {
     private String userNume;
     private String serviceNume;
     private String status;
+    private Long userId;
+    private Long providerId;
+    private Long serviceId;
+
     private java.time.LocalDateTime dataProgramare;
 }
