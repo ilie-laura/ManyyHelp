@@ -83,4 +83,15 @@ public class RecenzieServiceImpl implements RecenzieService {
         }
         return Math.round((sum / reviews.size()) * 10.0) / 10.0;
     }
+
+    @Override
+    public List<Recenzie> getRecenziiByUserId(Long userId, Integer limit) {
+        if (userId == null) {
+            return List.of();
+        }
+
+        int actualLimit = (limit != null && limit > 0) ? limit : 3;
+
+        return recenzieRepository.findByUserUseridOrderByCreatedAtDesc(userId, actualLimit);
+    }
 }

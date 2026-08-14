@@ -2,9 +2,11 @@ package com.mannyHelp.web.controllers;
 
 import com.mannyHelp.web.dto.ProgramareDto;
 import com.mannyHelp.web.dto.UsersDto;
+import com.mannyHelp.web.models.Recenzie;
 import com.mannyHelp.web.models.Users;
 import com.mannyHelp.web.service.CustomUserDetails;
 import com.mannyHelp.web.service.ProgramareService;
+import com.mannyHelp.web.service.RecenzieService;
 import com.mannyHelp.web.service.UsersService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -20,11 +22,13 @@ public class UsersController {
 
     private final UsersService usersService;
     private final ProgramareService programareService;
+    private final RecenzieService recenzieService;
 
-    public UsersController(UsersService usersService, ProgramareService programareService ) {
+    public UsersController(UsersService usersService, ProgramareService programareService, RecenzieService recenzieService) {
         this.usersService = usersService;
         this.programareService = programareService;
 
+        this.recenzieService = recenzieService;
     }
 
     @GetMapping("/mainPage")
@@ -50,6 +54,7 @@ public class UsersController {
     @GetMapping("/users/{id}")
     public String userDetails(@PathVariable("id") Long userId,
                               @AuthenticationPrincipal CustomUserDetails customUser,
+                              @RequestParam(value = "reviewLimit", defaultValue = "5") Integer reviewLimit,
                               Model model) {
 
 
@@ -68,10 +73,15 @@ public class UsersController {
         } else {
             programari = programareService.getProgramariByUserId(userId);
         }
-
+        List<Recenzie> userReviews = null;
+        if (loggedUser != null && loggedUser.getUserid().equals(userId)) {
+            userReviews = recenzieService.getRecenziiByUserId(userId, reviewLimit);
+        }
         model.addAttribute("user", user);
         model.addAttribute("loggedUser", loggedUser);
         model.addAttribute("programari", programari);
+        model.addAttribute("userReviews", userReviews);
+        model.addAttribute("selectedLimit", reviewLimit);
 
         return "user-details";
     }

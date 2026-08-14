@@ -31,7 +31,8 @@
         <p class="text-muted small" th:text="'Modifici datele pentru @' + ${user.username}"></p>
     </div>
 
-    <form th:action="@{/users/edit/{id}(id=${userId})}" th:object="${user}" method="post">
+    <!-- S-a corectat id-ul aici: ${user.userid} -->
+    <form th:action="@{/users/edit/{id}(id=${user.userid})}" th:object="${user}" method="post">
 
         <div class="row g-2 mb-3">
             <div class="col-6">
@@ -63,7 +64,7 @@
         </div>
 
         <button type="submit" class="btn btn-auth mb-2">Salvează Modificările</button>
-        <a th:href="@{/users-list}" class="btn btn-light w-100 rounded-3 fw-semibold">Anulează</a>
+        <a th:href="@{/users/{id}(id=${user.userid})}" class="btn btn-light w-100 rounded-3 fw-semibold">Anulează</a>
     </form>
 </div>
 
