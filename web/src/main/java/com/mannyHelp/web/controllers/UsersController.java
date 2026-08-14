@@ -3,7 +3,6 @@ package com.mannyHelp.web.controllers;
 import com.mannyHelp.web.dto.ProgramareDto;
 import com.mannyHelp.web.dto.UsersDto;
 import com.mannyHelp.web.models.Recenzie;
-import com.mannyHelp.web.models.Users;
 import com.mannyHelp.web.service.CustomUserDetails;
 import com.mannyHelp.web.service.ProgramareService;
 import com.mannyHelp.web.service.RecenzieService;
@@ -24,10 +23,11 @@ public class UsersController {
     private final ProgramareService programareService;
     private final RecenzieService recenzieService;
 
-    public UsersController(UsersService usersService, ProgramareService programareService, RecenzieService recenzieService) {
+    public UsersController(UsersService usersService,
+                           ProgramareService programareService,
+                           RecenzieService recenzieService) {
         this.usersService = usersService;
         this.programareService = programareService;
-
         this.recenzieService = recenzieService;
     }
 
@@ -51,41 +51,48 @@ public class UsersController {
         model.addAttribute("users", usersList);
         return "users-list";
     }
+
     @GetMapping("/users/{id}")
     public String userDetails(@PathVariable("id") Long userId,
                               @AuthenticationPrincipal CustomUserDetails customUser,
                               @RequestParam(value = "reviewLimit", defaultValue = "5") Integer reviewLimit,
                               Model model) {
 
-
         UsersDto user = usersService.findUserById(userId);
-
 
         UsersDto loggedUser = null;
         if (customUser != null) {
             loggedUser = usersService.findUserByUsername(customUser.getUsername());
         }
 
-
         List<ProgramareDto> programari;
-        if (Boolean.TRUE.equals(user.getUserOrProvider())) {
-            programari = programareService.getProgramariByProviderUserId(userId);
-        } else {
-            programari = programareService.getProgramariByUserId(userId);
-        }
         List<Recenzie> userReviews = null;
-        if (loggedUser != null && loggedUser.getUserid().equals(userId)) {
-            userReviews = recenzieService.getRecenziiByUserId(userId, reviewLimit);
+        List<Recenzie> providerReceivedReviews = null;
+        double providerAverageRating = 0.0;
+
+        if (Boolean.TRUE.equals(user.getUserOrProvider())) {
+            // DACĂ ESTE PROVIDER: Preluăm programările primite, recenziile clienților și media
+            programari = programareService.getProgramariByProviderUserId(userId);
+            providerReceivedReviews = recenzieService.getRecenziiByProvider(userId);
+            providerAverageRating = recenzieService.getAverageRatingByProvider(userId);
+        } else {
+            // DACĂ ESTE CLIENT: Preluăm programările făcute și recenziile scrise de el
+            programari = programareService.getProgramariByUserId(userId);
+            if (loggedUser != null && loggedUser.getUserid().equals(userId)) {
+                userReviews = recenzieService.getRecenziiByUserId(userId, reviewLimit);
+            }
         }
+
         model.addAttribute("user", user);
         model.addAttribute("loggedUser", loggedUser);
         model.addAttribute("programari", programari);
         model.addAttribute("userReviews", userReviews);
+        model.addAttribute("providerReviews", providerReceivedReviews);
+        model.addAttribute("averageRating", providerAverageRating);
         model.addAttribute("selectedLimit", reviewLimit);
 
         return "user-details";
     }
-
 
     @GetMapping("/users/edit/{id}")
     public String showEditForm(@PathVariable("id") Long id, Model model, Principal principal) {
@@ -95,7 +102,6 @@ public class UsersController {
 
         UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
 
-
         if (!loggedUser.getUserid().equals(id)) {
             return "redirect:/users/" + loggedUser.getUserid();
         }
@@ -104,7 +110,6 @@ public class UsersController {
         return "edit-user";
     }
 
-    // --- SALVARE EDITARE ---
     @PostMapping("/users/edit/{id}")
     public String updateUser(@PathVariable("id") Long id,
                              @ModelAttribute("user") UsersDto userDto,
@@ -125,6 +130,7 @@ public class UsersController {
         usersService.deleteUser(username);
         return "redirect:/users-list?deleted";
     }
+
     @PostMapping("/programari/status")
     public String updateProgramareStatus(@RequestParam("userId") Long userId,
                                          @RequestParam("serviceId") Long serviceId,
@@ -134,7 +140,6 @@ public class UsersController {
         if (customUser == null) {
             return "redirect:/login";
         }
-
 
         programareService.updateStatus(userId, serviceId, providerId, status);
 

@@ -396,7 +396,13 @@
 
                     <div class="d-flex align-items-center gap-2 mb-4">
                         <i class="bi bi-star-fill text-warning fs-5"></i>
-                        <span class="small fw-semibold">Evaluare Trustlist: 4.9 ★</span>
+                        <span class="small fw-semibold" th:if="${user != null && user.userOrProvider}">
+        Scor Mediu:
+        <span class="text-dark fw-bold" th:text="${averageRating > 0 ? averageRating + ' / 5.0' : 'Fără recenzii'}">5.0 / 5.0</span>
+    </span>
+                        <span class="small fw-semibold" th:unless="${user != null && user.userOrProvider}">
+        Cont Client Verificat
+    </span>
                     </div>
 
                     <hr class="my-3">
