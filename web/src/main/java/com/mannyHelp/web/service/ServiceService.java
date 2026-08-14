@@ -7,6 +7,6 @@ public interface ServiceService {
     List<ServiceDto> findAllServices();
     List<ServiceDto> searchServices(String keyword,String location);
     ServiceDto findServiceById(int id);
-
+    List<ServiceDto> findServicesByProviderUserId(Long userId);
     void saveService(ServiceDto serviceDto);
 }

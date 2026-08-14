@@ -2,93 +2,27 @@
 <html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trustlist - Specialiști & Furnizori</title>
-
-    <!-- Bootstrap 5 CSS -->
+    <title th:text="${provider != null ? 'Servicii oferite de ' + provider.nume : 'Servicii Prestator'}">Servicii Prestator</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons & Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #1e293b;
-            background-color: #dfe0e3;
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .hero-provider {
+            background: radial-gradient(circle at top right, #0f4c5c 0%, #08242f 100%);
+            color: #ffffff;
+            padding: 50px 0;
         }
-
-        .main-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 18px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
-            overflow: hidden;
+        .service-card {
             background: #ffffff;
-        }
-
-        .pro-avatar-img {
-            width: 48px;
-            height: 48px;
-            object-fit: cover;
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
-        .pro-avatar-initials {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            background-color: #0284c7;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
-        .table > :not(caption) > * > * {
-            padding: 1.1rem 1.25rem;
-            vertical-align: middle;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #f1f5f9;
-            transition: background-color 0.15s ease-in-out;
-        }
-
-        .pro-tag-provider {
-            background-color: #0d3d4d;
-            color: #ffffff;
-            border-radius: 20px;
-            padding: 6px 14px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .btn-view-services {
-            background: linear-gradient(135deg, #0d3d4d 0%, #15798a 100%);
-            color: white;
-            border-radius: 30px;
-            padding: 8px 20px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border: none;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-        .btn-view-services:hover {
-            color: #ffffff;
-            opacity: 0.92;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(13, 61, 77, 0.25);
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+            border-color: #38bdf8;
         }
     </style>
 </head>
@@ -207,89 +141,59 @@
     </div>
 </nav>
 
-<!-- 2. CONȚINUT PRINCIPAL -->
-<div class="container py-5">
-
-    <!-- Header Secțiune -->
-    <div class="mb-4">
-        <h2 class="fw-bold mb-1" style="color: #0d3b4c; font-weight: 800;">
-            <i class="bi bi-patch-check-fill me-2 text-info"></i>Specialiști & Prestatori Verificați
-        </h2>
-        <p class="text-muted mb-0">Selectează un furnizor pentru a accesa portofoliul și catalogul său complet de servicii.</p>
+<section class="hero-provider mb-5">
+    <div class="container">
+        <a th:href="@{/users-list}" class="btn btn-sm btn-outline-light rounded-pill px-3 mb-4">
+            <i class="bi bi-arrow-left me-1"></i> Înapoi la Specialiști
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <img th:if="${provider.photourl != null && !#strings.isEmpty(provider.photourl)}"
+                 th:src="${provider.photourl}" alt="Avatar" class="rounded-circle border border-3 border-info" style="width: 80px; height: 80px; object-fit: cover;">
+            <div th:unless="${provider.photourl != null && !#strings.isEmpty(provider.photourl)}"
+                 class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center fw-bold fs-2" style="width: 80px; height: 80px;">
+                <span th:text="${#strings.substring(provider.username, 0, 1).toUpperCase()}">P</span>
+            </div>
+            <div>
+                <span class="badge bg-info-subtle text-info fw-semibold mb-1">Prestator Verificat</span>
+                <h2 class="fw-bold mb-0 text-white" th:text="${provider.nume + ' ' + (provider.prenume != null ? provider.prenume : '')}">Nume Prestator</h2>
+                <p class="text-light opacity-75 small mb-0" th:text="'@' + ${provider.username}">@username</p>
+            </div>
+            <div class="ms-auto text-end bg-white bg-opacity-10 p-3 rounded-4 border border-white border-opacity-10 d-none d-md-block">
+                <div class="fs-4 fw-bold text-warning"><i class="bi bi-star-fill"></i> <span th:text="${averageRating > 0 ? averageRating : 'Nou'}">5.0</span></div>
+                <small class="text-light opacity-75">Rating Mediu</small>
+            </div>
+        </div>
     </div>
+</section>
 
-    <!-- Card Tabel Prestatori -->
-    <div class="card main-card">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0 align-middle">
-                <thead class="bg-light border-bottom">
-                <tr>
-                    <th scope="col" class="text-uppercase text-secondary small fw-bold ps-4" style="width: 80px;">Avatar</th>
-                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Prestator</th>
-                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Username</th>
-                    <th scope="col" class="text-uppercase text-secondary small fw-bold">Statut</th>
-                    <th scope="col" class="text-uppercase text-secondary small fw-bold text-end pe-4">Catalog Servicii</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- Iterare DOAR prin Prestatori (userOrProvider == true) -->
-                <tr th:each="user : ${users}" th:if="${user.userOrProvider}">
-                    <td class="ps-4">
-                        <a th:href="@{/providers/{id}/services(id=${user.userid})}">
-                            <img th:if="${user.photourl != null && !#strings.isEmpty(user.photourl)}"
-                                 th:src="${user.photourl}"
-                                 alt="Avatar"
-                                 class="pro-avatar-img">
+<div class="container pb-5">
+    <h4 class="fw-bold mb-4 text-dark"><i class="bi bi-briefcase-fill text-info me-2"></i>Servicii Oferite</h4>
 
-                            <div th:unless="${user.photourl != null && !#strings.isEmpty(user.photourl)}"
-                                 class="pro-avatar-initials"
-                                 th:text="${(user.prenume != null && !#strings.isEmpty(user.prenume) ? #strings.substring(user.prenume,0,1) : '') + (user.nume != null && !#strings.isEmpty(user.nume) ? #strings.substring(user.nume,0,1) : 'P')}">
-                                P
-                            </div>
-                        </a>
-                    </td>
-                    <td>
-                        <!-- Click pe nume deschide direct pagina cu serviciile prestatorului -->
-                        <a th:href="@{/providers/{id}/services(id=${user.userid})}"
-                           class="fw-bold text-dark text-decoration-none hover-primary fs-6 d-block"
-                           th:text="${user.nume + ' ' + (user.prenume != null ? user.prenume : '')}">
-                            Ioan Popescu
-                        </a>
-                        <small class="text-muted" style="font-size: 0.75rem;">
-                            <i class="bi bi-geo-alt me-1 text-danger"></i>București, RO
-                        </small>
-                    </td>
-                    <td>
-                        <span class="text-muted small fw-medium" th:text="'@' + ${user.username}">@ioan99</span>
-                    </td>
-                    <td>
-                        <span class="pro-tag-provider">
-                            <i class="bi bi-patch-check-fill text-info"></i> Provider Verificat
-                        </span>
-                    </td>
-                    <td class="text-end pe-4">
-                        <!-- Buton direct către pagina separată de servicii -->
-                        <a th:href="@{/providers/{id}/services(id=${user.userid})}" class="btn-view-services shadow-sm">
-                            <i class="bi bi-grid-fill"></i> Vezi Servicii
-                        </a>
-                    </td>
-                </tr>
+    <div class="row g-4">
+        <div class="col-md-4" th:each="s : ${services}">
+            <div class="service-card p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <img th:if="${s.photourl != null && !#strings.isEmpty(s.photourl)}"
+                         th:src="${s.photourl}" class="img-fluid rounded-3 mb-3 w-100" style="height: 170px; object-fit: cover;">
+                    <h5 class="fw-bold text-dark mb-1" th:text="${s.numeServiciu}">Nume Serviciu</h5>
+                    <p class="text-muted small mb-2"><i class="bi bi-geo-alt text-danger"></i> <span th:text="${s.locatie}">București</span></p>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                    <span class="fw-bold text-info fs-5" th:text="${s.pret + ' RON'}">150 RON</span>
+                    <a th:href="@{/service/{id}(id=${s.serviceid})}" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold">
+                        Programează
+                    </a>
+                </div>
+            </div>
+        </div>
 
-                <!-- Cazul în care nu există niciun prestator înregistrat -->
-                <tr th:if="${#lists.isEmpty(users)}">
-                    <td colspan="5" class="text-center py-5">
-                        <i class="bi bi-people text-muted fs-1 d-block mb-2"></i>
-                        <h6 class="fw-bold text-dark mb-1">Nu există prestatori înregistrați</h6>
-                        <p class="text-muted small mb-0">Momentan nu a fost adăugat niciun cont de furnizor de servicii.</p>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="col-12 text-center py-5" th:if="${services == null || #lists.isEmpty(services)}">
+            <i class="bi bi-tools text-muted fs-1 mb-2 d-block"></i>
+            <h5 class="text-muted">Acest prestator nu are servicii active în acest moment.</h5>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

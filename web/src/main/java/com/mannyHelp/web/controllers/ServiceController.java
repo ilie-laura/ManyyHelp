@@ -133,6 +133,18 @@ public class ServiceController {
 
         return "redirect:/browse-services?success";
     }
+    @GetMapping("/providers/{id}/services")
+    public String viewProviderServices(@PathVariable("id") Long providerUserId, Model model) {
+        UsersDto providerUser = usersService.findUserById(providerUserId);
+        List<ServiceDto> providerServices = servicesService.findServicesByProviderUserId(providerUserId);
+        double averageRating = recenzieService.getAverageRatingByProvider(providerUserId);
+
+        model.addAttribute("provider", providerUser);
+        model.addAttribute("services", providerServices);
+        model.addAttribute("averageRating", averageRating);
+
+        return "provider-services";
+    }
 }
 
 

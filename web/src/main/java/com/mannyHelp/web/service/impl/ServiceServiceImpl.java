@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
-public class ServiceServiceImpl implements ServiceService {
+public
+class ServiceServiceImpl implements ServiceService {
 
     private final ServiceRepository serviceRepository;
     private final UsersRepository usersRepository;
@@ -79,5 +80,11 @@ public class ServiceServiceImpl implements ServiceService {
 
 
         serviceRepository.save(service);
+    }
+
+    @Override
+    public List<ServiceDto> findServicesByProviderUserId(Long userId) {
+        List<Service> services = serviceRepository.findByProviderUserid(userId);
+        return services.stream().map(this::mapToDto).toList();
     }
 }

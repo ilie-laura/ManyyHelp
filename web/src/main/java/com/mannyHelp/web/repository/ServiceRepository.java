@@ -20,4 +20,7 @@ public interface ServiceRepository extends JpaRepository<Service, Integer> {
             "(:location IS NULL OR :location = '' OR " +
             " LOWER(s.Locatie) LIKE LOWER(CONCAT('%', :location, '%')))")
     List<Service> searchServices(@Param("keyword") String keyword, @Param("location") String location);
+
+    @Query("SELECT s FROM Service s WHERE s.provider.userid = :userId")
+    List<Service> findByProviderUserid(@Param("userId") Long userId);
 }
