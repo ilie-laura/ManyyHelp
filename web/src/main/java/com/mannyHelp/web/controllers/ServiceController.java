@@ -37,14 +37,24 @@ public class ServiceController {
     public String browseServices(@RequestParam(required = false) String keyword,
                                  @RequestParam(required = false) String location,
                                  HttpSession session,
+                                 Principal principal,
                                  Model model) {
 
 
 
-
+        List<UsersDto> users = usersService.findAllUsers();
+        List<Recenzie> latestReviews = recenzieService.getRecentPlatformReviews(3);
 
         List<ServiceDto> services = servicesService.searchServices(keyword, location);
+        UsersDto loggedUser = null;
+        if (principal != null) {
+            loggedUser = usersService.findUserByUsername(principal.getName());
+        }
+
         model.addAttribute("services", services);
+        model.addAttribute("users", users);
+        model.addAttribute("latestReviews", latestReviews);
+        model.addAttribute("loggedUser", loggedUser);
 
         return "mainPage"; 
     }

@@ -11,6 +11,6 @@ public interface RecenzieService {
     List<Recenzie> getRecenziiByProvider(Long providerId);
     void addProviderResponse(Integer reviewId, String responseText);
     double getAverageRatingByProvider(Long providerId);
-
+    List<Recenzie> getRecentPlatformReviews(int limit);
     List<Recenzie> getRecenziiByUserId(Long userId, Integer limit);
 }

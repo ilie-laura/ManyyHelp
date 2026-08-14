@@ -1,12 +1,10 @@
 package com.mannyHelp.web.controllers;
 
 import com.mannyHelp.web.dto.ProgramareDto;
+import com.mannyHelp.web.dto.ServiceDto;
 import com.mannyHelp.web.dto.UsersDto;
 import com.mannyHelp.web.models.Recenzie;
-import com.mannyHelp.web.service.CustomUserDetails;
-import com.mannyHelp.web.service.ProgramareService;
-import com.mannyHelp.web.service.RecenzieService;
-import com.mannyHelp.web.service.UsersService;
+import com.mannyHelp.web.service.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,24 +20,32 @@ public class UsersController {
     private final UsersService usersService;
     private final ProgramareService programareService;
     private final RecenzieService recenzieService;
+    private final ServiceService serviceService;
 
     public UsersController(UsersService usersService,
                            ProgramareService programareService,
-                           RecenzieService recenzieService) {
+                           RecenzieService recenzieService, ServiceService serviceService) {
         this.usersService = usersService;
         this.programareService = programareService;
         this.recenzieService = recenzieService;
+        this.serviceService = serviceService;
     }
 
     @GetMapping("/mainPage")
     public String getMainPage(Model model, Principal principal) {
         List<UsersDto> users = usersService.findAllUsers();
+
+        List<ServiceDto> services = serviceService.searchServices(null, null);
+        List<Recenzie> latestReviews = recenzieService.getRecentPlatformReviews(6);
         model.addAttribute("users", users);
 
         UsersDto loggedUser = null;
         if (principal != null) {
             loggedUser = usersService.findUserByUsername(principal.getName());
         }
+        model.addAttribute("services", services);
+        model.addAttribute("latestReviews", latestReviews);
+        model.addAttribute("users", users);
         model.addAttribute("loggedUser", loggedUser);
 
         return "mainPage";

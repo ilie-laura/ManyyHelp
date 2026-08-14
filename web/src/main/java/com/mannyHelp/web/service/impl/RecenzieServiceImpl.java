@@ -94,4 +94,8 @@ public class RecenzieServiceImpl implements RecenzieService {
 
         return recenzieRepository.findByUserUseridOrderByCreatedAtDesc(userId, actualLimit);
     }
+    @Override
+    public List<Recenzie> getRecentPlatformReviews(int limit){
+        return recenzieRepository.findRecentPlatformReviews(limit > 0 ? limit : 3);
+    }
 }
