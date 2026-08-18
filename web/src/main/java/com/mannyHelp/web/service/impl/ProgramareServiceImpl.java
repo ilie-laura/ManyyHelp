@@ -32,7 +32,7 @@ public class ProgramareServiceImpl implements ProgramareService {
     }
 
     @Override
-    public void createProgramare(Long userId, int serviceId, Long providerId, LocalDateTime dataProgramare) {
+    public void createProgramare(Long userId, int serviceId, Long providerId, LocalDateTime dataProgramare, String detaliiSpecifice) {
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilizatorul nu a fost găsit"));
         com.mannyHelp.web.models.Service service = serviceRepository.findById(serviceId)
@@ -49,45 +49,32 @@ public class ProgramareServiceImpl implements ProgramareService {
                 .provider(provider)
                 .status("PENDING")
                 .dataProgramare(dataProgramare)
+                .detaliiSpecifice(detaliiSpecifice != null ? detaliiSpecifice : "")
+                .reviewTrimis(false)
                 .build();
 
         programareRepository.save(programare);
     }
 
     @Override
+    public void createProgramare(Long userId, int serviceId, Long providerId, LocalDateTime dataProgramare) {
+
+    }
+
+    @Override
     public List<ProgramareDto> getProgramariByUserId(Long userId) {
         List<Programare> programari = programareRepository.findByUserUserid(userId);
-        return programari.stream().map(p -> ProgramareDto.builder()
-                .userId(p.getProgramareid() != null ? p.getProgramareid().getUserId() : null)
-                .serviceId(p.getProgramareid() != null ? (long) p.getProgramareid().getServiceId() : null)
-                .providerId(p.getProgramareid() != null ? p.getProgramareid().getProviderId() : null)
-
-                .serviceNume(p.getService() != null ? p.getService().getNumeServiciu() : null)
-                .providerNume(p.getProvider() != null ? p.getProvider().getNumeCompanie() : null)
-                .userNume(p.getUser() != null ? (p.getUser().getNume() + " " + (p.getUser().getPrenume() != null ? p.getUser().getPrenume() : "")) : null)
-                .status(p.getStatus())
-                .dataProgramare(p.getDataProgramare())
-                .build()
-        ).collect(Collectors.toList());
+        return programari.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ProgramareDto> getProgramariByProviderUserId(Long providerUserId) {
         List<Programare> programari = programareRepository.findByProviderUserUserid(providerUserId);
-
-        return programari.stream().map(p -> ProgramareDto.builder()
-                .userId(p.getProgramareid() != null ? p.getProgramareid().getUserId() : null)
-                // Conversie sigură fără NullPointerException
-                .serviceId(p.getProgramareid() != null ? (long) p.getProgramareid().getServiceId() : null)
-                .providerId(p.getProgramareid() != null ? p.getProgramareid().getProviderId() : null)
-
-                .serviceNume(p.getService() != null ? p.getService().getNumeServiciu() : null)
-                .providerNume(p.getProvider() != null ? p.getProvider().getNumeCompanie() : null)
-                .userNume(p.getUser() != null ? (p.getUser().getNume() + " " + (p.getUser().getPrenume() != null ? p.getUser().getPrenume() : "")) : null)
-                .status(p.getStatus())
-                .dataProgramare(p.getDataProgramare())
-                .build()
-        ).collect(Collectors.toList());
+        return programari.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -102,5 +89,31 @@ public class ProgramareServiceImpl implements ProgramareService {
 
         programare.setStatus(newStatus);
         programareRepository.save(programare);
+    }
+
+    @Override
+    public void markReviewAsSubmitted(Long userId, Long serviceId, Long providerId) {
+        BookingId bookingId = new BookingId(userId, Math.toIntExact(serviceId), providerId);
+        Programare programare = programareRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Programarea nu a fost găsită!"));
+
+        programare.setReviewTrimis(true);
+        programare.setStatus("COMPLETED");
+        programareRepository.save(programare);
+    }
+
+    public ProgramareDto mapToDto(Programare programare) {
+        return ProgramareDto.builder()
+                .userId(programare.getUser() != null ? programare.getUser().getUserid() : (programare.getProgramareid() != null ? programare.getProgramareid().getUserId() : null))
+                .serviceId(programare.getService() != null ? (long) programare.getService().getServiceid() : (programare.getProgramareid() != null ? (long) programare.getProgramareid().getServiceId() : null))
+                .providerId(programare.getProvider() != null ? programare.getProvider().getProviderid() : (programare.getProgramareid() != null ? programare.getProgramareid().getProviderId() : null))
+                .serviceNume(programare.getService() != null ? programare.getService().getNumeServiciu() : "")
+                .userNume(programare.getUser() != null ? (programare.getUser().getNume() + " " + (programare.getUser().getPrenume() != null ? programare.getUser().getPrenume() : "")) : "")
+                .providerNume(programare.getProvider() != null ? programare.getProvider().getNumeCompanie() : "")
+                .dataProgramare(programare.getDataProgramare())
+                .status(programare.getStatus())
+                .detaliiSpecifice(programare.getDetaliiSpecifice())
+                .reviewTrimis(programare.isReviewTrimis())
+                .build();
     }
 }

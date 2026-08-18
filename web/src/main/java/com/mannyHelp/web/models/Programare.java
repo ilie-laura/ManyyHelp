@@ -32,4 +32,7 @@ public class Programare {
 
  private String status;
  private LocalDateTime dataProgramare;
+ private String detaliiSpecifice;
+ private boolean reviewTrimis;
+
 }

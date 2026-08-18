@@ -293,40 +293,136 @@
                                         <th th:unless="${user != null && user.userOrProvider}">Furnizor</th>
                                         <th>Data & Ora</th>
                                         <th>Status</th>
-                                        <th th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid && user.userOrProvider}">Acțiune</th>
+                                        <th>Acțiuni</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <tr th:each="p : ${programari}">
-                                        <td class="fw-semibold text-dark" th:text="${p.serviceNume != null ? p.serviceNume : '-'}">Reparații</td>
+                                        <!-- Serviciu & detalii transmise -->
+                                        <td>
+                                            <div class="fw-semibold text-dark" th:text="${p.serviceNume != null ? p.serviceNume : '-'}">Reparații</div>
+                                            <small class="text-muted d-block" th:if="${p.detaliiSpecifice != null && !#strings.isEmpty(p.detaliiSpecifice)}">
+                                                <i class="bi bi-chat-left-text me-1 text-info"></i><span th:text="${p.detaliiSpecifice}">Detalii lucrare</span>
+                                            </small>
+                                        </td>
+
                                         <td th:if="${user != null && user.userOrProvider}" class="text-secondary" th:text="${p.userNume != null ? p.userNume : '-'}">Client</td>
                                         <td th:unless="${user != null && user.userOrProvider}" class="text-secondary" th:text="${p.providerNume != null ? p.providerNume : '-'}">Furnizor</td>
+
                                         <td>
                                             <i class="bi bi-clock me-1 text-muted"></i>
                                             <span th:text="${p.dataProgramare != null ? #temporals.format(p.dataProgramare, 'dd-MM-yyyy HH:mm') : '-'}">12-08-2026 14:00</span>
                                         </td>
+
                                         <td>
                                             <span class="badge rounded-pill px-2 py-1"
-                                                  th:classappend="${p.status == 'APPROVED' ? 'bg-success' : (p.status == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark')}"
+                                                  th:classappend="${p.status == 'FINISHED' ? 'bg-success' : (p.status == 'APPROVED' ? 'bg-primary' : (p.status == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark'))}"
                                                   th:text="${p.status != null ? p.status : 'PENDING'}">
                                                 PENDING
                                             </span>
                                         </td>
-                                        <td th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid && user.userOrProvider}">
-                                            <form th:action="@{/programari/status}" method="post" class="d-flex gap-1 align-items-center m-0">
-                                                <input type="hidden" name="userId" th:value="${p.userId}" />
-                                                <input type="hidden" name="serviceId" th:value="${p.serviceId}" />
-                                                <input type="hidden" name="providerId" th:value="${p.providerId}" />
 
-                                                <select name="status" class="form-select form-select-sm" style="width: auto;">
-                                                    <option value="PENDING" th:selected="${p.status == 'PENDING'}">PENDING</option>
-                                                    <option value="APPROVED" th:selected="${p.status == 'APPROVED'}">APPROVED</option>
-                                                    <option value="CANCELLED" th:selected="${p.status == 'CANCELLED'}">CANCELLED</option>
-                                                </select>
-                                                <button type="submit" class="btn btn-sm btn-outline-info" title="Salvează">
-                                                    <i class="bi bi-check-lg"></i>
-                                                </button>
-                                            </form>
+                                        <!-- ACȚIUNI: Prestator (Schimbare Status) SAU Client (Feedback & Rating) -->
+                                        <td>
+                                            <!-- Caz 1: Prestatorul își schimbă statusul -->
+                                            <div th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid && user.userOrProvider}">
+                                                <form th:action="@{/programari/status}" method="post" class="d-flex gap-1 align-items-center m-0">
+                                                    <input type="hidden" name="userId" th:value="${p.userId}" />
+                                                    <input type="hidden" name="serviceId" th:value="${p.serviceId}" />
+                                                    <input type="hidden" name="providerId" th:value="${p.providerId}" />
+
+                                                    <select name="status" class="form-select form-select-sm shadow-none" style="width: auto;">
+                                                        <option value="PENDING" th:selected="${p.status == 'PENDING'}">PENDING</option>
+                                                        <option value="APPROVED" th:selected="${p.status == 'APPROVED'}">APPROVED</option>
+                                                        <option value="FINISHED" th:selected="${p.status == 'FINISHED'}">FINISHED</option>
+                                                        <option value="CANCELLED" th:selected="${p.status == 'CANCELLED'}">CANCELLED</option>
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-outline-info" title="Salvează">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+
+                                            <!-- Caz 2: Clientul lasă Feedback când statusul devine FINISHED -->
+                                            <div th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid && !user.userOrProvider}">
+
+                                                <!-- Buton activ dacă e FINISHED și nu a dat review -->
+                                                <div th:if="${p.status == 'FINISHED' and !p.reviewTrimis}">
+                                                    <button class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm"
+                                                            data-bs-toggle="modal"
+                                                            th:data-bs-target="'#reviewModal-' + ${p.userId + '-' + p.serviceId + '-' + p.providerId}">
+                                                        <i class="bi bi-star-fill me-1"></i> Lasă Feedback
+                                                    </button>
+                                                </div>
+
+                                                <!-- Indicator dacă review-ul a fost trimis -->
+                                                <div th:if="${p.reviewTrimis}">
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                                        <i class="bi bi-check2-circle me-1"></i> Feedback Trimis
+                                                    </span>
+                                                </div>
+
+                                                <!-- Status în derulare dacă nu e încă FINISHED -->
+                                                <div th:if="${p.status != 'FINISHED' and !p.reviewTrimis}">
+                                                    <span class="text-muted small fst-italic">În derulare...</span>
+                                                </div>
+
+                                                <!-- MODAL FEEDBACK & RATING (Per Programare) -->
+                                                <div class="modal fade"
+                                                     th:id="'reviewModal-' + ${p.userId + '-' + p.serviceId + '-' + p.providerId}"
+                                                     tabindex="-1"
+                                                     aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content rounded-4 border-0 p-3 shadow">
+                                                            <form th:action="@{/booking/review}" method="post">
+                                                                <div class="modal-header border-0 pb-0">
+                                                                    <h5 class="modal-title fw-bold text-dark">
+                                                                        <i class="bi bi-star-fill text-warning me-2"></i>Evaluează serviciul
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+                                                                </div>
+
+                                                                <div class="modal-body text-start">
+                                                                    <p class="small text-muted mb-3">
+                                                                        Cum a decurs lucrarea pentru <strong class="text-dark" th:text="${p.serviceNume}">Serviciu</strong> oferit de <strong class="text-info" th:text="${p.providerNume}">Prestator</strong>?
+                                                                    </p>
+
+                                                                    <!-- Câmpuri ascunse ID-uri -->
+                                                                    <input type="hidden" name="userId" th:value="${p.userId}" />
+                                                                    <input type="hidden" name="serviceId" th:value="${p.serviceId}" />
+                                                                    <input type="hidden" name="providerId" th:value="${p.providerId}" />
+
+                                                                    <!-- Notă Rating -->
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-semibold small text-dark">Notă acordată (1 - 5 stele):</label>
+                                                                        <select name="rating" class="form-select rounded-3 shadow-none" required>
+                                                                            <option value="5">★★★★★ (5 - Excelent)</option>
+                                                                            <option value="4">★★★★☆ (4 - Foarte bun)</option>
+                                                                            <option value="3">★★★☆☆ (3 - Bun / Satisfăcător)</option>
+                                                                            <option value="2">★★☆☆☆ (2 - Sub așteptări)</option>
+                                                                            <option value="1">★☆☆☆☆ (1 - Nemulțumit)</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                    <!-- Comentariu / Părere -->
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label fw-semibold small text-dark">Părerea ta:</label>
+                                                                        <textarea name="comment" rows="3" class="form-control rounded-3 shadow-none" placeholder="Scrie câteva detalii despre calitatea lucrării..." required></textarea>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="modal-footer border-0 pt-0">
+                                                                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Anulează</button>
+                                                                    <button type="submit" class="btn btn-info text-white rounded-pill px-4 fw-bold shadow-sm">Trimite Recenzia</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- SFÂRȘIT MODAL -->
+                                            </div>
+
+                                            <span th:if="${loggedUser == null || user == null || loggedUser.userid != user.userid}" class="text-muted small">-</span>
                                         </td>
                                     </tr>
                                     </tbody>

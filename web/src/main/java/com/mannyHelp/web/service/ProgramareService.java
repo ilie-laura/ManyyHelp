@@ -10,4 +10,6 @@ public interface ProgramareService {
     List<ProgramareDto> getProgramariByUserId(Long userId);
     List<ProgramareDto> getProgramariByProviderUserId(Long providerUserId);
     void updateStatus(Long userId, Long serviceId, Long providerId, String newStatus);
+    void createProgramare(Long userId, int serviceId, Long providerId, LocalDateTime dataProgramare, String detaliiSpecifice);
+    void markReviewAsSubmitted(Long userId, Long serviceId, Long providerId);
 }

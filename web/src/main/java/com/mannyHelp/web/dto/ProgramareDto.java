@@ -13,6 +13,8 @@ public class ProgramareDto {
     private Long userId;
     private Long providerId;
     private Long serviceId;
+    private String detaliiSpecifice;
+    private boolean reviewTrimis;
 
     private java.time.LocalDateTime dataProgramare;
 }
