@@ -1,6 +1,8 @@
 package com.mannyHelp.web.service;
 
 import com.mannyHelp.web.models.Recenzie;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,4 +15,6 @@ public interface RecenzieService {
     double getAverageRatingByProvider(Long providerId);
     List<Recenzie> getRecentPlatformReviews(int limit);
     List<Recenzie> getRecenziiByUserId(Long userId, Integer limit);
+
+
 }

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Table
 public class Service {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // <-- OBLIGATORIU pentru PostgreSQL
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int serviceid;
     private String numeServiciu;
     private Double pret;

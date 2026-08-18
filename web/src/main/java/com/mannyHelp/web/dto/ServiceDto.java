@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceDto {
@@ -19,6 +20,8 @@ public class ServiceDto {
     private LocalDateTime createdon;
     private String categorie;
 
+
+    private Double rating;
     private Long providerId;
 
 

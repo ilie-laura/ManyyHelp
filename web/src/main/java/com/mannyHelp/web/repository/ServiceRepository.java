@@ -1,7 +1,10 @@
 package com.mannyHelp.web.repository;
 
 import com.mannyHelp.web.models.Service;
+import com.mannyHelp.web.models.ServiceSpecifications;
+import com.mannyHelp.web.service.RecenzieService;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -9,7 +12,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ServiceRepository extends JpaRepository<Service, Integer> {
+public interface ServiceRepository extends JpaRepository<Service, Integer>, JpaSpecificationExecutor<Service> {
+
 
     @Query("SELECT s FROM Service s WHERE " +
             "(:keyword IS NULL OR :keyword = '' OR " +

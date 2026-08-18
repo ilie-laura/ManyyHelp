@@ -25,7 +25,7 @@
             scroll-margin-top: 80px;
         }
 
-        /* 1. HERO SECTION (Albastru Petrol Închis) */
+        /* 1. HERO SECTION */
         .hero-dark-contrast {
             background: radial-gradient(circle at top right, #0f4c5c 0%, #08242f 100%);
             color: #ffffff;
@@ -56,7 +56,19 @@
             margin-top: 6px;
         }
 
-        /* 2. RECENZII (Fundal Alb Curat) */
+        /* Search input reset & borders */
+        .search-container .form-control,
+        .search-container .form-select {
+            font-size: 0.92rem;
+            border: none;
+            background-color: transparent;
+        }
+        .search-container .form-select:focus,
+        .search-container .form-control:focus {
+            box-shadow: none;
+        }
+
+        /* 2. RECENZII */
         .reviews-light-section {
             background-color: #ffffff;
             padding: 80px 0;
@@ -80,7 +92,7 @@
             right: 25px;
         }
 
-        /* 3. CUM FUNCȚIONEAZĂ (Albastru Marin Nocturn cu Glow & Carduri Moderne) */
+        /* 3. CUM FUNCTIONEAZA */
         .bg-midnight-contrast {
             background: radial-gradient(circle at 50% 20%, #0e3b4a 0%, #071922 100%);
             color: #ffffff;
@@ -138,7 +150,7 @@
             color: #ffffff;
         }
 
-        /* 4. SERVICII DISPONIBILE (Fundal Soft Grey) */
+        /* 4. SERVICII DISPONIBILE */
         .services-light-section {
             background-color: #f8fafc;
             padding: 85px 0;
@@ -163,7 +175,7 @@
     </style>
 </head>
 <body>
-<!-- 1. NAVBAR OPTIMIZAT PENTRU MOBIL & DESKTOP -->
+<!-- 1. NAVBAR -->
 <nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2">
     <div class="container">
         <!-- Logo -->
@@ -172,13 +184,11 @@
             <span style="letter-spacing: -0.5px;">Trustlist</span>
         </a>
 
-        <!-- Buton Meniu Mobil (Hamburger) -->
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Link-uri Principale de Navigare -->
             <ul class="navbar-nav mx-auto align-items-lg-center py-2 py-lg-0">
                 <li class="nav-item">
                     <a class="nav-link fw-semibold px-lg-3 text-secondary" th:href="@{/browse-services}">
@@ -197,24 +207,19 @@
                 </li>
             </ul>
 
-            <!-- Zona Dreapta: Acțiuni & Profil Utilizator (aliniere curată pe mobil) -->
             <div class="d-flex flex-wrap align-items-center gap-2 pt-2 pt-lg-0 border-top border-lg-0">
-
-                <!-- Buton Furnizor -->
                 <a th:if="${loggedUser != null && loggedUser.userOrProvider}"
                    th:href="@{/services/new}"
                    class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold align-items-center gap-1">
                     <i class="bi bi-plus-lg"></i> Adaugă Serviciu
                 </a>
 
-                <!-- Buton Client -->
                 <a th:if="${loggedUser != null && !loggedUser.userOrProvider}"
                    th:href="@{/users/edit/{id}(id=${loggedUser.userid})}"
                    class="btn btn-sm btn-light text-secondary rounded-pill px-3 fw-semibold border">
                     Devino prestator
                 </a>
 
-                <!-- Calendar Programări -->
                 <a th:if="${loggedUser != null}"
                    th:href="@{/users/{id}(id=${loggedUser.userid})}"
                    class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
@@ -222,7 +227,7 @@
                     <i class="bi bi-calendar-event fs-6"></i>
                 </a>
 
-                <!-- Avatar Dropdown (Corectat poziționarea cu dropdown-menu-lg-end) -->
+                <!-- Avatar Dropdown -->
                 <div th:if="${loggedUser != null}" class="dropdown">
                     <button class="btn p-0 border-0 d-flex align-items-center gap-2 shadow-none"
                             type="button"
@@ -244,7 +249,6 @@
                         <i class="bi bi-chevron-down text-muted small"></i>
                     </button>
 
-                    <!-- Meniul se aliniază la stânga pe mobil și la dreapta pe desktop (dropdown-menu-lg-end) -->
                     <ul class="dropdown-menu dropdown-menu-start dropdown-menu-lg-end shadow border-0 rounded-4 mt-2 p-2" style="min-width: 230px;">
                         <li class="px-3 py-2 border-bottom mb-1 bg-light rounded-3">
                             <span class="d-block fw-bold text-dark small" th:text="${loggedUser.nume + ' ' + (loggedUser.prenume != null ? loggedUser.prenume : '')}">Nume User</span>
@@ -273,18 +277,16 @@
                     </ul>
                 </div>
 
-                <!-- Butoane Utilizator Nelogat -->
                 <div th:if="${loggedUser == null}" class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
                     <a th:href="@{/login}" class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold text-secondary">Login</a>
                     <a th:href="@{/register}" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold shadow-sm">Înregistrare</a>
                 </div>
             </div>
-
         </div>
     </div>
 </nav>
 
-<!-- 2. HERO SECTION (ALBASTRU PETROL) -->
+<!-- 2. HERO SECTION -->
 <section class="hero-dark-contrast">
     <div class="container">
         <div class="badge-verified-dark mb-4">
@@ -299,24 +301,78 @@
             Instalatori, electricieni, tehnicieni, curățenie și multe altele — compară recenzii autentice și programează rapid.
         </p>
 
-        <!-- Formular Căutare -->
-        <form th:action="@{/browse-services}" method="get" class="card p-3 shadow-lg border-0 mb-5" style="max-width: 750px; background: #ffffff; border-radius: 18px;">
+
+        <form th:action="@{/browse-services#results}" method="get" class="search-container card p-3 shadow-lg border-0 mb-5"  style="max-width: 960px; background: #ffffff; border-radius: 18px;">
             <div class="row g-2 align-items-center">
-                <div class="col-md-5">
+
+                <!-- 1. Keyword -->
+                <div class="col-lg-3 col-md-6">
                     <div class="input-group">
                         <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" name="keyword" class="form-control border-0 shadow-none text-dark" placeholder="Ce serviciu cauți? (ex: Electrician)" th:value="${param.keyword}">
+                        <input type="text" name="keyword" class="form-control shadow-none text-dark ps-0" placeholder="Serviciu / Titlu" th:value="${param.keyword}">
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="input-group border-start">
+                <!-- 2. Oraș (cu Datalist pentru Dropdown / Autocomplete la tastare) -->
+                <div class="col-lg-3 col-md-6 border-start-md">
+                    <div class="input-group">
                         <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-geo-alt"></i></span>
-                        <input type="text" name="location" class="form-control border-0 shadow-none text-dark" placeholder="Oraș / Locație" th:value="${param.location}">
+                        <input list="citiesList" name="location" class="form-control shadow-none text-dark ps-0" placeholder="Alege sau scrie orașul" th:value="${param.location}">
+
+                        <!-- Lista de orașe pentru sugestii automate -->
+                        <datalist id="citiesList">
+                            <!-- Opțiuni dinamice din baza de date (dacă există în model) -->
+                            <th:block th:if="${cities != null}">
+                                <option th:each="city : ${cities}" th:value="${city}"></option>
+                            </th:block>
+                            <!-- Sugestii standard implicite -->
+                            <option value="București"></option>
+                            <option value="Cluj-Napoca"></option>
+                            <option value="Timișoara"></option>
+                            <option value="Iași"></option>
+                            <option value="Brașov"></option>
+                            <option value="Constanța"></option>
+                            <option value="Craiova"></option>
+                            <option value="Galați"></option>
+                            <option value="Ploiești"></option>
+                            <option value="Oradea"></option>
+                            <option value="Sibiu"></option>
+                            <option value="Piatra Neamț"></option>
+                        </datalist>
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <!-- 3. Categorie -->
+                <div class="col-lg-2 col-md-4 border-start-lg">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0 text-muted d-none d-lg-flex"><i class="bi bi-grid"></i></span>
+                        <select name="category" class="form-select shadow-none text-dark">
+                            <option value="" th:selected="${param.category == null || param.category == ''}">Categorie</option>
+                            <option value="instalatii" th:selected="${param.category != null && param.category[0] == 'instalatii'}">Instalații</option>
+                            <option value="electricitate" th:selected="${param.category != null && param.category[0] == 'electricitate'}">Electricitate</option>
+                            <option value="curatenie" th:selected="${param.category != null && param.category[0] == 'curatenie'}">Curățenie</option>
+                            <option value="constructii" th:selected="${param.category != null && param.category[0] == 'constructii'}">Construcții & Renovări</option>
+                            <option value="auto" th:selected="${param.category != null && param.category[0] == 'auto'}">Auto & Tractări</option>
+                            <option value="it" th:selected="${param.category != null && param.category[0] == 'it'}">IT & Calculatoare</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 4. Sortare (Rating, Preț etc.) -->
+                <div class="col-lg-2 col-md-4 border-start-lg">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0 text-muted d-none d-lg-flex"><i class="bi bi-sort-down"></i></span>
+                        <select name="sortBy" class="form-select shadow-none text-dark">
+                            <option value="rating_desc" th:selected="${param.sortBy == null || param.sortBy[0] == 'rating_desc'}">Rating</option>
+                            <option value="price_asc" th:selected="${param.sortBy != null && param.sortBy[0] == 'price_asc'}">Preț crescător</option>
+                            <option value="price_desc" th:selected="${param.sortBy != null && param.sortBy[0] == 'price_desc'}">Preț descrescător</option>
+                            <option value="newest" th:selected="${param.sortBy != null && param.sortBy[0] == 'newest'}">Cele mai noi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 5. Buton Căutare -->
+                <div class="col-lg-2 col-md-4">
                     <button type="submit" class="btn btn-info text-white w-100 fw-bold py-2 rounded-3">
                         <i class="bi bi-search me-1"></i> Caută
                     </button>
@@ -342,10 +398,9 @@
     </div>
 </section>
 
-<!-- 3. SLIDESHOW RECENZII REALE (ALB) -->
+<!-- 3. SLIDESHOW RECENZII REALE -->
 <section class="reviews-light-section">
     <div class="container text-center">
-
         <div class="mb-4">
             <span class="badge bg-info-subtle text-info fw-bold px-3 py-2 rounded-pill mb-2">
                 <i class="bi bi-stars me-1"></i> Experiențe Reale
@@ -356,8 +411,6 @@
 
         <div id="reviewsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
             <div class="carousel-inner pb-4">
-
-                <!-- Recenzii dinamice din baza de date -->
                 <th:block th:if="${latestReviews != null && !#lists.isEmpty(latestReviews)}">
                     <div th:each="rev, iterStat : ${latestReviews}"
                          class="carousel-item"
@@ -393,7 +446,6 @@
                     </div>
                 </th:block>
 
-                <!-- Fallback dacă nu sunt recenzii -->
                 <th:block th:if="${latestReviews == null || #lists.isEmpty(latestReviews)}">
                     <div class="carousel-item active">
                         <div class="review-slide-card text-start">
@@ -409,7 +461,6 @@
                         </div>
                     </div>
                 </th:block>
-
             </div>
 
             <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev" style="width: 5%;">
@@ -421,15 +472,12 @@
                 <span class="visually-hidden">Următor</span>
             </button>
         </div>
-
     </div>
 </section>
 
-<!-- 4. CUM FUNCȚIONEAZĂ (ALBASTRU NOCTURN MODERNE) -->
+<!-- 4. CUM FUNCȚIONEAZĂ -->
 <section id="how-it-works" class="bg-midnight-contrast">
     <div class="container">
-
-        <!-- Header Secțiune -->
         <div class="text-center mx-auto mb-5" style="max-width: 650px;">
             <span class="badge bg-info-subtle text-info fw-bold px-3 py-2 rounded-pill mb-3">
                 <i class="bi bi-lightning-charge-fill me-1"></i> Proces Simplificat
@@ -438,10 +486,7 @@
             <p class="text-light opacity-75 fs-6 mb-0">Rezolvă orice problemă din locuința sau biroul tău în 3 pași rapizi</p>
         </div>
 
-        <!-- Cei 3 Pași -->
         <div class="row g-4 text-center mb-5 position-relative">
-
-            <!-- Pasul 1 -->
             <div class="col-md-4">
                 <div class="step-card-pro">
                     <span class="step-badge-number">PASUL 01</span>
@@ -455,7 +500,6 @@
                 </div>
             </div>
 
-            <!-- Pasul 2 -->
             <div class="col-md-4">
                 <div class="step-card-pro">
                     <span class="step-badge-number">PASUL 02</span>
@@ -469,7 +513,6 @@
                 </div>
             </div>
 
-            <!-- Pasul 3 -->
             <div class="col-md-4">
                 <div class="step-card-pro">
                     <span class="step-badge-number">PASUL 03</span>
@@ -482,28 +525,24 @@
                     </p>
                 </div>
             </div>
-
         </div>
 
-        <!-- Buton Principal & Garanții Trust -->
         <div class="text-center pt-2">
             <a th:href="@{/browse-services}" class="btn btn-cta-glow text-white rounded-pill px-5 py-3 fw-bold mb-4">
                 <i class="bi bi-rocket-takeoff me-2"></i> Începe acum căutarea
             </a>
 
-            <!-- Mini Trust Badges sub buton -->
             <div class="d-flex justify-content-center flex-wrap gap-4 text-light opacity-75 small pt-2">
                 <span><i class="bi bi-check-circle-fill text-info me-1"></i> Fără taxe ascunse</span>
                 <span><i class="bi bi-shield-lock-fill text-success me-1"></i> Meseriași verificați</span>
                 <span><i class="bi bi-chat-heart-fill text-warning me-1"></i> Recenzii 100% reale</span>
             </div>
         </div>
-
     </div>
 </section>
 
-<!-- 5. SERVICII DISPONIBILE (SOFT GREY) -->
-<section class="services-light-section">
+<!-- 5. SERVICII DISPONIBILE -->
+<section class="services-light-section" id="results">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
@@ -524,6 +563,12 @@
 
                         <h5 class="fw-bold mb-1 text-dark" th:text="${s.numeServiciu}">Nume Serviciu</h5>
                         <p class="text-muted small mb-2"><i class="bi bi-geo-alt text-danger"></i> <span th:text="${s.locatie}">București</span></p>
+                    </div>
+                    <!-- Adaugă rating-ul pe card -->
+                    <div class="d-flex align-items-center gap-1 text-warning small mb-2">
+                        <i class="bi bi-star-fill"></i>
+                        <span class="fw-bold text-dark" th:text="${s.rating != null ? #numbers.formatDecimal(s.rating, 1, 1) : '0.0'}">5.0</span>
+                        <span class="text-muted" style="font-size: 0.75rem;">/ 5</span>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">

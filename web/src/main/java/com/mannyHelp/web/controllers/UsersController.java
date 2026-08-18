@@ -32,10 +32,14 @@ public class UsersController {
     }
 
     @GetMapping("/mainPage")
-    public String getMainPage(Model model, Principal principal) {
+    public String getMainPage(@RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) String location,
+                              @RequestParam(required = false) String category,
+                              @RequestParam(required = false) String sortBy,
+                              Model model, Principal principal) {
         List<UsersDto> users = usersService.findAllUsers();
 
-        List<ServiceDto> services = serviceService.searchServices(null, null);
+        List<ServiceDto> services = serviceService.searchAndFilterServices(keyword, location, category, sortBy);
         List<Recenzie> latestReviews = recenzieService.getRecentPlatformReviews(6);
         model.addAttribute("users", users);
 

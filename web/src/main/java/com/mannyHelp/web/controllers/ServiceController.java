@@ -33,19 +33,20 @@ public class ServiceController {
         this.oferitorServiciiService = oferitorServiciiService;
         this.recenzieService = recenzieService;
     }
-    @GetMapping("/browse-services")
+    @GetMapping({ "/browse-services"})
     public String browseServices(@RequestParam(required = false) String keyword,
                                  @RequestParam(required = false) String location,
-                                 HttpSession session,
+                                 @RequestParam(required = false) String category,
+                                 @RequestParam(required = false) String sortBy,
                                  Principal principal,
                                  Model model) {
-
-
 
         List<UsersDto> users = usersService.findAllUsers();
         List<Recenzie> latestReviews = recenzieService.getRecentPlatformReviews(3);
 
-        List<ServiceDto> services = servicesService.searchServices(keyword, location);
+
+        List<ServiceDto> services = servicesService.searchAndFilterServices(keyword, location, category, sortBy);
+
         UsersDto loggedUser = null;
         if (principal != null) {
             loggedUser = usersService.findUserByUsername(principal.getName());
@@ -56,7 +57,7 @@ public class ServiceController {
         model.addAttribute("latestReviews", latestReviews);
         model.addAttribute("loggedUser", loggedUser);
 
-        return "mainPage"; 
+        return "mainPage";
     }
     @GetMapping("/service/{id}")
     public String getServiceDetails(@PathVariable("id") int serviceId,

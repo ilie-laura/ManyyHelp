@@ -9,4 +9,6 @@ public interface ServiceService {
     ServiceDto findServiceById(int id);
     List<ServiceDto> findServicesByProviderUserId(Long userId);
     void saveService(ServiceDto serviceDto);
+
+    List<ServiceDto> searchAndFilterServices(String keyword, String location, String category, String sortBy);
 }
