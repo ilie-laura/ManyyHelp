@@ -70,9 +70,7 @@
     </style>
 </head>
 <body>
-
-<!-- 1. NAVBAR -->
-<nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2">
+<nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2" style="z-index: 1050;">
     <div class="container">
         <!-- Logo -->
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2 text-dark" th:href="@{/mainPage}">
@@ -105,18 +103,37 @@
             </ul>
 
             <div class="d-flex flex-wrap align-items-center gap-2 pt-2 pt-lg-0 border-top border-lg-0">
+                <!-- Buton Adaugă Serviciu -->
                 <a th:if="${loggedUser != null && loggedUser.userOrProvider}"
                    th:href="@{/services/new}"
                    class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold align-items-center gap-1">
                     <i class="bi bi-plus-lg"></i> Adaugă Serviciu
                 </a>
 
+                <!-- Buton Devino Prestator -->
                 <a th:if="${loggedUser != null && !loggedUser.userOrProvider}"
                    th:href="@{/users/edit/{id}(id=${loggedUser.userid})}"
                    class="btn btn-sm btn-light text-secondary rounded-pill px-3 fw-semibold border">
                     Devino prestator
                 </a>
 
+                <!-- 1. ICONIȚĂ CHAT CU NOTIFICĂRI -->
+                <a th:if="${loggedUser != null}"
+                   th:href="@{/chat/{id}(id=${lastChatPartnerId != null ? lastChatPartnerId : loggedUser.userid})}"
+                   class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
+                   title="Mesaje & Chat">
+                    <i class="bi bi-chat-dots fs-6"></i>
+
+                    <!-- Badge Notificări (apare doar dacă există mesaje) -->
+                    <span th:if="${unreadChatCount != null and unreadChatCount > 0}"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white p-1"
+                          style="font-size: 0.65rem; min-width: 18px;"
+                          th:text="${unreadChatCount > 99 ? '99+' : unreadChatCount}">
+                        1
+                    </span>
+                </a>
+
+                <!-- 2. ICONIȚĂ PROGRAMĂRI -->
                 <a th:if="${loggedUser != null}"
                    th:href="@{/users/{id}(id=${loggedUser.userid})}"
                    class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
@@ -158,6 +175,7 @@
                                 <i class="bi bi-person me-2 text-secondary"></i> Profilul meu
                             </a>
                         </li>
+
                         <li>
                             <a class="dropdown-item rounded-2 py-2 small" th:href="@{/users/edit/{id}(id=${loggedUser.userid})}">
                                 <i class="bi bi-gear me-2 text-secondary"></i> Setări cont
@@ -174,6 +192,7 @@
                     </ul>
                 </div>
 
+                <!-- Butoane Login/Înregistrare -->
                 <div th:if="${loggedUser == null}" class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
                     <a th:href="@{/login}" class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold text-secondary">Login</a>
                     <a th:href="@{/register}" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold shadow-sm">Înregistrare</a>
@@ -182,6 +201,7 @@
         </div>
     </div>
 </nav>
+
 
 <!-- 2. HEADER PROFIL (ALBASTRU ÎNCHIS / TEAL) -->
 <section class="py-5 profile-header-dark">

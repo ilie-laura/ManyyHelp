@@ -29,4 +29,5 @@ public class ChatMessage {
     private String content;
 
     private LocalDateTime sentAt;
+    private Boolean isRead;
 }

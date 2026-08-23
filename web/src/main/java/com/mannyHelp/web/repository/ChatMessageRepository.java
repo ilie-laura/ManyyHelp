@@ -13,4 +13,12 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             "(m.senderId.userid = :u2 AND m.receiverId.userid = :u1) " +
             "ORDER BY m.sentAt ASC")
     List<ChatMessage> findConversation(@Param("u1") Long user1Id, @Param("u2") Long user2Id);
+
+
+    @Query("SELECT m.senderId.userid FROM ChatMessage m WHERE m.receiverId.userid = :userId ORDER BY m.sentAt DESC LIMIT 1")
+    Long findLastChatPartnerUserId(@Param("userId") Long userId);
+
+   
+    @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.receiverId.userid = :userId")
+    long countUnreadMessagesByUserId(@Param("userId") Long userId);
 }
