@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trustlist - Book trusted local pros</title>
-
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -788,29 +789,51 @@
             })
             .catch(() => {});
     }
-
     function handlePopupSend(e) {
         e.preventDefault();
         const receiverId = document.getElementById("popupReceiverId").value;
         const input = document.getElementById("popupMsgInput");
         const content = input.value.trim();
 
-        if (!content || !receiverId || receiverId === "0") return;
+        if (!content || !receiverId || receiverId === "0") {
+            console.warn("Nu este selectat niciun destinatar valid (receiverId=" + receiverId + ")");
+            return;
+        }
+
+        // Preluăm token-ul CSRF
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
 
         const formData = new URLSearchParams();
         formData.append("receiverId", receiverId);
         formData.append("content", content);
 
+        const headers = {
+            "Content-Type": "application/x-www-form-urlencoded"
+        };
+
+        if (csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+
         fetch("/api/chat/send", {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: headers,
             body: formData.toString()
-        }).then(res => {
-            if (res.ok) {
-                input.value = "";
-                loadPopupMessages();
-            }
-        });
+        })
+            .then(async res => {
+                if (res.ok) {
+                    input.value = "";
+                    loadPopupMessages();
+                } else {
+                    const errorText = await res.text();
+                    console.error("Eroare la trimitere mesaj (Status " + res.status + "):", errorText);
+                    alert("Mesajul nu a putut fi trimis (Eroare " + res.status + "). Verifică dacă ești autentificat.");
+                }
+            })
+            .catch(err => {
+                console.error("Eroare rețea/Fetch:", err);
+            });
     }
 
     function loadNavbarConversations() {
@@ -861,6 +884,10 @@
         if (dropdownEl) {
             const bsDropdown = bootstrap.Dropdown.getInstance(dropdownEl);
             if (bsDropdown) bsDropdown.hide();
+
+
+            const badge = dropdownEl.querySelector('.badge');
+            if (badge) badge.style.display = 'none';
         }
 
         toggleChatPopup(partnerId, partnerName);

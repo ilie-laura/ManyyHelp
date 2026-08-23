@@ -17,7 +17,6 @@
         }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
 
-
         .profile-header-dark {
             background: radial-gradient(circle at top right, #0f4c5c 0%, #08242f 100%);
             color: #ffffff;
@@ -67,9 +66,89 @@
             font-size: 0.9rem;
             vertical-align: middle;
         }
+
+        /* POPUP WIDGET STYLES */
+        .chat-widget-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 1060;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .chat-widget-btn:hover {
+            transform: scale(1.05);
+            background-color: #0369a1;
+        }
+        .chat-popup-window {
+            position: fixed;
+            bottom: 95px;
+            right: 24px;
+            width: 360px;
+            max-width: 90vw;
+            height: 480px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 1060;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .chat-popup-header {
+            background: radial-gradient(circle at top right, #0f4c5c 0%, #08242f 100%);
+            color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-popup-body {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .popup-msg {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            word-wrap: break-word;
+        }
+        .popup-msg-sent {
+            align-self: flex-end;
+            background-color: #0284c7;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+        .popup-msg-recv {
+            align-self: flex-start;
+            background-color: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 2px;
+        }
     </style>
 </head>
 <body>
+
+<!-- 1. NAVBAR CU CHAT DROPDOWN -->
 <nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2" style="z-index: 1050;">
     <div class="container">
         <!-- Logo -->
@@ -79,7 +158,7 @@
         </a>
 
         <!-- Buton Meniu Mobil -->
-        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -104,34 +183,48 @@
 
             <div class="d-flex flex-wrap align-items-center gap-2 pt-2 pt-lg-0 border-top border-lg-0">
                 <!-- Buton Adaugă Serviciu -->
-                <a th:if="${loggedUser != null && loggedUser.userOrProvider}"
+                <a th:if="${loggedUser != null and loggedUser.userOrProvider}"
                    th:href="@{/services/new}"
                    class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold align-items-center gap-1">
                     <i class="bi bi-plus-lg"></i> Adaugă Serviciu
                 </a>
 
                 <!-- Buton Devino Prestator -->
-                <a th:if="${loggedUser != null && !loggedUser.userOrProvider}"
+                <a th:if="${loggedUser != null and !loggedUser.userOrProvider}"
                    th:href="@{/users/edit/{id}(id=${loggedUser.userid})}"
                    class="btn btn-sm btn-light text-secondary rounded-pill px-3 fw-semibold border">
                     Devino prestator
                 </a>
 
-                <!-- 1. ICONIȚĂ CHAT CU NOTIFICĂRI -->
-                <a th:if="${loggedUser != null}"
-                   th:href="@{/chat/{id}(id=${lastChatPartnerId != null ? lastChatPartnerId : loggedUser.userid})}"
-                   class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
-                   title="Mesaje & Chat">
-                    <i class="bi bi-chat-dots fs-6"></i>
+                <!-- 1. ICONIȚĂ CHAT CU DROPDOWN -->
+                <div th:if="${loggedUser != null}" class="dropdown">
+                    <button class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
+                            type="button"
+                            id="chatMenuBtn"
+                            data-bs-toggle="dropdown"
+                            data-bs-display="static"
+                            aria-expanded="false"
+                            onclick="loadNavbarConversations()"
+                            title="Mesaje & Conversații">
+                        <i class="bi bi-chat-dots fs-5"></i>
+                        <span th:if="${unreadChatCount != null and unreadChatCount > 0}"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white p-1"
+                              style="font-size: 0.65rem; min-width: 18px;"
+                              th:text="${unreadChatCount > 99 ? '99+' : unreadChatCount}">1</span>
+                    </button>
 
-                    <!-- Badge Notificări (apare doar dacă există mesaje) -->
-                    <span th:if="${unreadChatCount != null and unreadChatCount > 0}"
-                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white p-1"
-                          style="font-size: 0.65rem; min-width: 18px;"
-                          th:text="${unreadChatCount > 99 ? '99+' : unreadChatCount}">
-                        1
-                    </span>
-                </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2"
+                        style="width: 320px; max-height: 400px; overflow-y: auto;"
+                        id="navbarConversationsList">
+                        <li class="px-3 py-2 border-bottom fw-bold small text-dark d-flex justify-content-between align-items-center">
+                            <span>Mesaje Recente</span>
+                            <i class="bi bi-chat-left-text text-info"></i>
+                        </li>
+                        <li class="text-center py-3 text-muted small">
+                            Se încarcă discuțiile...
+                        </li>
+                    </ul>
+                </div>
 
                 <!-- 2. ICONIȚĂ PROGRAMĂRI -->
                 <a th:if="${loggedUser != null}"
@@ -149,13 +242,13 @@
                             data-bs-display="static"
                             aria-expanded="false">
 
-                        <img th:if="${loggedUser.photourl != null && !#strings.isEmpty(loggedUser.photourl)}"
+                        <img th:if="${loggedUser.photourl != null and !#strings.isEmpty(loggedUser.photourl)}"
                              th:src="${loggedUser.photourl}"
                              alt="Avatar"
                              class="rounded-circle border border-2 border-info"
                              style="width: 38px; height: 38px; object-fit: cover;">
 
-                        <div th:unless="${loggedUser.photourl != null && !#strings.isEmpty(loggedUser.photourl)}"
+                        <div th:unless="${loggedUser.photourl != null and !#strings.isEmpty(loggedUser.photourl)}"
                              class="rounded-circle bg-info-subtle text-info fw-bold d-flex align-items-center justify-content-center border border-2 border-info"
                              style="width: 38px; height: 38px; font-size: 0.95rem;">
                             <span th:text="${loggedUser.username != null ? #strings.substring(loggedUser.username, 0, 1).toUpperCase() : 'U'}">U</span>
@@ -202,22 +295,21 @@
     </div>
 </nav>
 
-
-<!-- 2. HEADER PROFIL (ALBASTRU ÎNCHIS / TEAL) -->
+<!-- 2. HEADER PROFIL -->
 <section class="py-5 profile-header-dark">
     <div class="container">
         <div class="row align-items-center g-3">
             <div class="col-auto">
-                <img th:if="${user != null && user.photourl != null && !#strings.isEmpty(user.photourl)}"
+                <img th:if="${user != null and user.photourl != null and !#strings.isEmpty(user.photourl)}"
                      th:src="${user.photourl}"
                      alt="Foto Profil"
                      class="rounded-circle border border-3 border-info shadow-sm"
                      style="width: 95px; height: 95px; object-fit: cover;">
 
-                <div th:unless="${user != null && user.photourl != null && !#strings.isEmpty(user.photourl)}"
+                <div th:unless="${user != null and user.photourl != null and !#strings.isEmpty(user.photourl)}"
                      class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
                      style="width: 95px; height: 95px; font-size: 2.3rem;">
-                    <span th:text="${user != null && user.username != null ? #strings.substring(user.username, 0, 1) : 'U'}">U</span>
+                    <span th:text="${user != null and user.username != null ? #strings.substring(user.username, 0, 1) : 'U'}">U</span>
                 </div>
             </div>
 
@@ -266,54 +358,51 @@
                         <div class="col-sm-4">
                             <small class="text-muted d-block">Tip Cont</small>
                             <div class="fw-semibold text-dark">
-                                <span th:text="${user != null && user.userOrProvider ? 'Prestator (Provider)' : 'Client (User)'}">Client</span>
+                                <span th:text="${user != null and user.userOrProvider ? 'Prestator (Provider)' : 'Client (User)'}">Client</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pt-3 border-top mt-3" th:if="${loggedUser != null && loggedUser.userOrProvider && user != null && loggedUser.userid == user.userid}">
+                    <div class="pt-3 border-top mt-3" th:if="${loggedUser != null and loggedUser.userOrProvider and user != null and loggedUser.userid == user.userid}">
                         <a th:href="@{/services/new}" class="btn btn-sm btn-success rounded-pill px-3">
                             <i class="bi bi-plus-circle me-1"></i> Adaugă Serviciu Nou
                         </a>
                     </div>
                 </div>
 
-                <!-- Card 2: Container Tab-uri (Programări & Recenzii) -->
+                <!-- Card 2: Tab-uri (Programări & Recenzii) -->
                 <div class="dashboard-card p-4 mb-4">
-
-                    <!-- Nav Tabs -->
                     <ul class="nav nav-tabs nav-tabs-custom border-bottom mb-4" id="profileTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active d-flex align-items-center gap-2" id="programari-tab" data-bs-toggle="tab" data-bs-target="#programari-pane" type="button" role="tab">
                                 <i class="bi bi-calendar-check"></i>
-                                <span th:if="${user != null && user.userOrProvider}">Programări Primite</span>
-                                <span th:unless="${user != null && user.userOrProvider}">Programările Mele</span>
+                                <span th:if="${user != null and user.userOrProvider}">Programări Primite</span>
+                                <span th:unless="${user != null and user.userOrProvider}">Programările Mele</span>
                                 <span class="badge bg-secondary-subtle text-secondary rounded-pill" th:text="${programari != null ? programari.size() : 0}">0</span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link d-flex align-items-center gap-2" id="recenzii-tab" data-bs-toggle="tab" data-bs-target="#recenzii-pane" type="button" role="tab">
                                 <i class="bi bi-star-fill text-warning"></i>
-                                <span th:if="${user != null && user.userOrProvider}">Recenzii Primite</span>
-                                <span th:unless="${user != null && user.userOrProvider}">Recenziile Mele</span>
+                                <span th:if="${user != null and user.userOrProvider}">Recenzii Primite</span>
+                                <span th:unless="${user != null and user.userOrProvider}">Recenziile Mele</span>
                                 <span class="badge bg-secondary-subtle text-secondary rounded-pill"
-                                      th:text="${user != null && user.userOrProvider ? (providerReviews != null ? providerReviews.size() : 0) : (userReviews != null ? userReviews.size() : 0)}">0</span>
+                                      th:text="${user != null and user.userOrProvider ? (providerReviews != null ? providerReviews.size() : 0) : (userReviews != null ? userReviews.size() : 0)}">0</span>
                             </button>
                         </li>
                     </ul>
 
-                    <!-- Tab Content -->
                     <div class="tab-content" id="profileTabsContent">
 
                         <!-- PANE 1: TABEL PROGRAMĂRI -->
                         <div class="tab-pane fade show active" id="programari-pane" role="tabpanel">
-                            <div th:if="${programari != null && !#lists.isEmpty(programari)}" class="table-responsive">
+                            <div th:if="${programari != null and !#lists.isEmpty(programari)}" class="table-responsive">
                                 <table class="table table-hover table-custom align-middle mb-0">
                                     <thead>
                                     <tr>
                                         <th>Serviciu</th>
-                                        <th th:if="${user != null && user.userOrProvider}">Client</th>
-                                        <th th:unless="${user != null && user.userOrProvider}">Furnizor</th>
+                                        <th th:if="${user != null and user.userOrProvider}">Client</th>
+                                        <th th:unless="${user != null and user.userOrProvider}">Furnizor</th>
                                         <th>Data & Ora</th>
                                         <th>Status</th>
                                         <th>Acțiuni</th>
@@ -321,16 +410,15 @@
                                     </thead>
                                     <tbody>
                                     <tr th:each="p : ${programari}">
-                                        <!-- Serviciu & detalii transmise -->
                                         <td>
                                             <div class="fw-semibold text-dark" th:text="${p.serviceNume != null ? p.serviceNume : '-'}">Reparații</div>
-                                            <small class="text-muted d-block" th:if="${p.detaliiSpecifice != null && !#strings.isEmpty(p.detaliiSpecifice)}">
+                                            <small class="text-muted d-block" th:if="${p.detaliiSpecifice != null and !#strings.isEmpty(p.detaliiSpecifice)}">
                                                 <i class="bi bi-chat-left-text me-1 text-info"></i><span th:text="${p.detaliiSpecifice}">Detalii lucrare</span>
                                             </small>
                                         </td>
 
-                                        <td th:if="${user != null && user.userOrProvider}" class="text-secondary" th:text="${p.userNume != null ? p.userNume : '-'}">Client</td>
-                                        <td th:unless="${user != null && user.userOrProvider}" class="text-secondary" th:text="${p.providerNume != null ? p.providerNume : '-'}">Furnizor</td>
+                                        <td th:if="${user != null and user.userOrProvider}" class="text-secondary" th:text="${p.userNume != null ? p.userNume : '-'}">Client</td>
+                                        <td th:unless="${user != null and user.userOrProvider}" class="text-secondary" th:text="${p.providerNume != null ? p.providerNume : '-'}">Furnizor</td>
 
                                         <td>
                                             <i class="bi bi-clock me-1 text-muted"></i>
@@ -345,10 +433,9 @@
                                             </span>
                                         </td>
 
-                                        <!-- ACȚIUNI: Prestator (Schimbare Status) SAU Client (Feedback & Rating) -->
                                         <td>
                                             <!-- Caz 1: Prestatorul își schimbă statusul -->
-                                            <div th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid && user.userOrProvider}">
+                                            <div th:if="${loggedUser != null and user != null and loggedUser.userid == user.userid and user.userOrProvider}">
                                                 <form th:action="@{/programari/status}" method="post" class="d-flex gap-1 align-items-center m-0">
                                                     <input type="hidden" name="userId" th:value="${p.userId}" />
                                                     <input type="hidden" name="serviceId" th:value="${p.serviceId}" />
@@ -367,9 +454,7 @@
                                             </div>
 
                                             <!-- Caz 2: Clientul lasă Feedback când statusul devine FINISHED -->
-                                            <div th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid && !user.userOrProvider}">
-
-                                                <!-- Buton activ dacă e FINISHED și nu a dat review -->
+                                            <div th:if="${loggedUser != null and user != null and loggedUser.userid == user.userid and !user.userOrProvider}">
                                                 <div th:if="${p.status == 'FINISHED' and !p.reviewTrimis}">
                                                     <button class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm"
                                                             data-bs-toggle="modal"
@@ -378,19 +463,17 @@
                                                     </button>
                                                 </div>
 
-                                                <!-- Indicator dacă review-ul a fost trimis -->
                                                 <div th:if="${p.reviewTrimis}">
                                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
                                                         <i class="bi bi-check2-circle me-1"></i> Feedback Trimis
                                                     </span>
                                                 </div>
 
-                                                <!-- Status în derulare dacă nu e încă FINISHED -->
                                                 <div th:if="${p.status != 'FINISHED' and !p.reviewTrimis}">
                                                     <span class="text-muted small fst-italic">În derulare...</span>
                                                 </div>
 
-                                                <!-- MODAL FEEDBACK & RATING (Per Programare) -->
+                                                <!-- MODAL FEEDBACK -->
                                                 <div class="modal fade"
                                                      th:id="'reviewModal-' + ${p.userId + '-' + p.serviceId + '-' + p.providerId}"
                                                      tabindex="-1"
@@ -410,12 +493,10 @@
                                                                         Cum a decurs lucrarea pentru <strong class="text-dark" th:text="${p.serviceNume}">Serviciu</strong> oferit de <strong class="text-info" th:text="${p.providerNume}">Prestator</strong>?
                                                                     </p>
 
-                                                                    <!-- Câmpuri ascunse ID-uri -->
                                                                     <input type="hidden" name="userId" th:value="${p.userId}" />
                                                                     <input type="hidden" name="serviceId" th:value="${p.serviceId}" />
                                                                     <input type="hidden" name="providerId" th:value="${p.providerId}" />
 
-                                                                    <!-- Notă Rating -->
                                                                     <div class="mb-3">
                                                                         <label class="form-label fw-semibold small text-dark">Notă acordată (1 - 5 stele):</label>
                                                                         <select name="rating" class="form-select rounded-3 shadow-none" required>
@@ -427,10 +508,9 @@
                                                                         </select>
                                                                     </div>
 
-                                                                    <!-- Comentariu / Părere -->
                                                                     <div class="mb-3">
                                                                         <label class="form-label fw-semibold small text-dark">Părerea ta:</label>
-                                                                        <textarea name="comment" rows="3" class="form-control rounded-3 shadow-none" placeholder="Scrie câteva detalii despre calitatea lucrării..." required></textarea>
+                                                                        <textarea name="comment" rows="3" class="form-control rounded-3 shadow-none" placeholder="Scrie câteva detalii..." required></textarea>
                                                                     </div>
                                                                 </div>
 
@@ -442,27 +522,26 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- SFÂRȘIT MODAL -->
                                             </div>
 
-                                            <span th:if="${loggedUser == null || user == null || loggedUser.userid != user.userid}" class="text-muted small">-</span>
+                                            <span th:if="${loggedUser == null or user == null or loggedUser.userid != user.userid}" class="text-muted small">-</span>
                                         </td>
                                     </tr>
                                     </tbody>
                                 </table>
                             </div>
 
-                            <div th:if="${programari == null || #lists.isEmpty(programari)}" class="text-center py-5 text-muted">
+                            <div th:if="${programari == null or #lists.isEmpty(programari)}" class="text-center py-5 text-muted">
                                 <i class="bi bi-calendar-x fs-1 d-block mb-2 text-secondary"></i>
                                 <p class="mb-0">Nu există nicio programare înregistrată.</p>
                             </div>
                         </div>
 
-                        <!-- PANE 2: RECENZII (Provider vs Client) -->
+                        <!-- PANE 2: RECENZII -->
                         <div class="tab-pane fade" id="recenzii-pane" role="tabpanel">
 
                             <!-- CAZUL 1: PROVIDER -->
-                            <div th:if="${user != null && user.userOrProvider}">
+                            <div th:if="${user != null and user.userOrProvider}">
                                 <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3 mb-4 border">
                                     <div>
                                         <h6 class="fw-bold mb-0 text-dark">Scor General Furnizor</h6>
@@ -474,7 +553,7 @@
                                     </div>
                                 </div>
 
-                                <div th:if="${providerReviews != null && !#lists.isEmpty(providerReviews)}">
+                                <div th:if="${providerReviews != null and !#lists.isEmpty(providerReviews)}">
                                     <div th:each="rev : ${providerReviews}" class="border rounded-3 p-3 mb-3 bg-white shadow-sm">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <span class="fw-bold text-dark" th:text="${rev.user != null ? (rev.user.nume + ' ' + (rev.user.prenume != null ? rev.user.prenume : '')) : 'Client Anonim'}">Client</span>
@@ -496,14 +575,14 @@
                                     </div>
                                 </div>
 
-                                <div th:if="${providerReviews == null || #lists.isEmpty(providerReviews)}" class="text-center py-5 text-muted">
+                                <div th:if="${providerReviews == null or #lists.isEmpty(providerReviews)}" class="text-center py-5 text-muted">
                                     <i class="bi bi-chat-square-dots fs-1 d-block mb-2 text-secondary"></i>
                                     <p class="mb-0">Nu ai primit nicio recenzie până în prezent.</p>
                                 </div>
                             </div>
 
                             <!-- CAZUL 2: CLIENT -->
-                            <div th:unless="${user != null && user.userOrProvider}">
+                            <div th:unless="${user != null and user.userOrProvider}">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <span class="small text-muted">Recenzii scrise de tine</span>
                                     <form th:action="@{/users/{id}(id=${user.userid})}" method="get" class="d-flex align-items-center gap-2 m-0">
@@ -517,7 +596,7 @@
                                     </form>
                                 </div>
 
-                                <div th:if="${userReviews != null && !#lists.isEmpty(userReviews)}">
+                                <div th:if="${userReviews != null and !#lists.isEmpty(userReviews)}">
                                     <div th:each="rev : ${userReviews}" class="border rounded-3 p-3 mb-3 bg-light-subtle">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <div>
@@ -536,7 +615,7 @@
                                     </div>
                                 </div>
 
-                                <div th:if="${userReviews == null || #lists.isEmpty(userReviews)}" class="text-center py-5 text-muted">
+                                <div th:if="${userReviews == null or #lists.isEmpty(userReviews)}" class="text-center py-5 text-muted">
                                     <i class="bi bi-chat-square-dots fs-1 d-block mb-2 text-secondary"></i>
                                     <p class="mb-0">Nu ai lăsat nicio recenzie până acum.</p>
                                 </div>
@@ -563,18 +642,18 @@
 
                     <div class="d-flex align-items-center gap-2 mb-4">
                         <i class="bi bi-star-fill text-warning fs-5"></i>
-                        <span class="small fw-semibold" th:if="${user != null && user.userOrProvider}">
+                        <span class="small fw-semibold" th:if="${user != null and user.userOrProvider}">
                             Scor Mediu:
                             <span class="text-dark fw-bold" th:text="${averageRating > 0 ? averageRating + ' / 5.0' : 'Fără recenzii'}">5.0 / 5.0</span>
                         </span>
-                        <span class="small fw-semibold" th:unless="${user != null && user.userOrProvider}">
+                        <span class="small fw-semibold" th:unless="${user != null and user.userOrProvider}">
                             Cont Client Verificat
                         </span>
                     </div>
 
                     <hr class="my-3">
 
-                    <div th:if="${loggedUser != null && user != null && loggedUser.userid == user.userid}">
+                    <div th:if="${loggedUser != null and user != null and loggedUser.userid == user.userid}">
                         <a th:href="@{/users/edit/{id}(id=${user.userid})}"
                            class="btn btn-light border text-secondary w-100 rounded-3 fw-semibold">
                             <i class="bi bi-pencil-square me-1"></i> Editează profilul
@@ -587,117 +666,32 @@
     </div>
 </section>
 
-<!-- Bootstrap JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- STILURI POPUP WIDGET -->
-<style>
-    .chat-widget-btn {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
-        background-color: #0284c7;
-        color: white;
-        border: none;
-        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        z-index: 1060;
-        cursor: pointer;
-        transition: transform 0.2s, background-color 0.2s;
-    }
-    .chat-widget-btn:hover {
-        transform: scale(1.05);
-        background-color: #0369a1;
-    }
-    .chat-popup-window {
-        position: fixed;
-        bottom: 95px;
-        right: 24px;
-        width: 360px;
-        max-width: 90vw;
-        height: 480px;
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 12px 35px rgba(15, 23, 42, 0.15);
-        display: none;
-        flex-direction: column;
-        z-index: 1060;
-        overflow: hidden;
-        border: 1px solid #e2e8f0;
-    }
-    .chat-popup-header {
-        background: radial-gradient(circle at top right, #0f4c5c 0%, #08242f 100%);
-        color: #fff;
-        padding: 12px 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .chat-popup-body {
-        flex: 1;
-        padding: 12px;
-        overflow-y: auto;
-        background-color: #f8fafc;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    .popup-msg {
-        max-width: 80%;
-        padding: 8px 12px;
-        border-radius: 14px;
-        font-size: 0.85rem;
-        word-wrap: break-word;
-    }
-    .popup-msg-sent {
-        align-self: flex-end;
-        background-color: #0284c7;
-        color: white;
-        border-bottom-right-radius: 2px;
-    }
-    .popup-msg-recv {
-        align-self: flex-start;
-        background-color: #ffffff;
-        color: #1e293b;
-        border: 1px solid #e2e8f0;
-        border-bottom-left-radius: 2px;
-    }
-</style>
-
 <!-- BUTON TRIGGER PLUTITOR -->
-<button class="chat-widget-btn" onclick="toggleChatPopup()" title="Chat Asistență / Prestator">
+<button class="chat-widget-btn" onclick="toggleChatPopup()" title="Chat Asistență / Conversații">
     <i class="bi bi-chat-dots-fill"></i>
 </button>
 
 <!-- FEREASTRA POPUP CHAT -->
 <div class="chat-popup-window" id="chatPopup">
-    <!-- Header -->
     <div class="chat-popup-header">
         <div class="d-flex align-items-center gap-2">
             <div class="rounded-circle bg-info text-white fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
                 <i class="bi bi-person-fill"></i>
             </div>
             <div>
-                <div class="fw-bold small" id="popupPartnerName" th:text="${oferitor != null ? oferitor.numeCompanie : 'Mesaje Trustlist'}">Conversație</div>
-                <small class="text-info" style="font-size: 0.65rem;">Online</small>
+                <div class="fw-bold small" id="popupPartnerName">Conversație</div>
+                <small class="text-info" style="font-size: 0.65rem;">Activ</small>
             </div>
         </div>
         <button type="button" class="btn-close btn-close-white shadow-none" style="font-size: 0.75rem;" onclick="toggleChatPopup()"></button>
     </div>
 
-    <!-- Mesaje Container -->
     <div class="chat-popup-body" id="popupChatBody">
-        <div class="text-center text-muted small my-auto">Se încarcă conversația...</div>
+        <div class="text-center text-muted small my-auto">Selectează o conversație sau trimite un mesaj.</div>
     </div>
 
-    <!-- Input Form -->
-    <form onsubmit="handlePopupSend(event)" class="p-2 bg-white border-top d-flex gap-2">
-        <input type="hidden" id="popupReceiverId" th:value="${oferitor != null and oferitor.providerid != null ? oferitor.providerid : (lastChatPartnerId != null ? lastChatPartnerId : 0)}">
+    <form onsubmit="handlePopupSend(event)" class="p-2 bg-white border-top d-flex gap-2 m-0">
+        <input type="hidden" id="popupReceiverId" th:value="${lastChatPartnerId != null ? lastChatPartnerId : 0}">
         <input type="text" id="popupMsgInput" class="form-control form-control-sm rounded-pill shadow-none" placeholder="Scrie un mesaj..." required autocomplete="off">
         <button type="submit" class="btn btn-sm btn-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
             <i class="bi bi-send-fill" style="font-size: 0.75rem;"></i>
@@ -705,7 +699,9 @@
     </form>
 </div>
 
-<!-- LOGICĂ JS AJAX PENTRU CHAT -->
+<!-- Bootstrap 5 JS & Scripturi Chat -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     let chatInterval = null;
 
@@ -720,20 +716,21 @@
             document.getElementById("popupPartnerName").innerText = partnerName;
         }
 
-        if (isOpen) {
+        if (isOpen && !partnerId) {
             popup.style.display = "none";
             clearInterval(chatInterval);
         } else {
             popup.style.display = "flex";
             loadPopupMessages();
-            chatInterval = setInterval(loadPopupMessages, 3000); // Polling la 3 secunde
+            clearInterval(chatInterval);
+            chatInterval = setInterval(loadPopupMessages, 3000);
         }
     }
 
     function loadPopupMessages() {
         const receiverId = document.getElementById("popupReceiverId").value;
         if (!receiverId || receiverId === "0") {
-            document.getElementById("popupChatBody").innerHTML = '<div class="text-center text-muted small my-auto">Alege un prestator pentru conversație.</div>';
+            document.getElementById("popupChatBody").innerHTML = '<div class="text-center text-muted small my-auto">Alege un partener din mesaje pentru a începe conversația.</div>';
             return;
         }
 
@@ -742,7 +739,7 @@
             .then(messages => {
                 const body = document.getElementById("popupChatBody");
                 if (messages.length === 0) {
-                    body.innerHTML = '<div class="text-center text-muted small my-auto">Niciun mesaj încă. Salută prestatorul!</div>';
+                    body.innerHTML = '<div class="text-center text-muted small my-auto">Niciun mesaj încă. Trimite primul mesaj!</div>';
                     return;
                 }
 
@@ -764,7 +761,7 @@
         const input = document.getElementById("popupMsgInput");
         const content = input.value.trim();
 
-        if (!content) return;
+        if (!content || !receiverId || receiverId === "0") return;
 
         const formData = new URLSearchParams();
         formData.append("receiverId", receiverId);
@@ -780,6 +777,59 @@
                 loadPopupMessages();
             }
         });
+    }
+
+    function loadNavbarConversations() {
+        const list = document.getElementById("navbarConversationsList");
+
+        fetch('/api/chat/conversations')
+            .then(res => res.json())
+            .then(conversations => {
+                if (!conversations || conversations.length === 0) {
+                    list.innerHTML = `
+                        <li class="px-3 py-2 border-bottom fw-bold small text-dark">Mesaje Recente</li>
+                        <li class="text-center py-4 text-muted small">Nu ai nicio conversație începută.</li>
+                    `;
+                    return;
+                }
+
+                let html = '<li class="px-3 py-2 border-bottom fw-bold small text-dark">Mesaje Recente</li>';
+                conversations.forEach(c => {
+                    html += `
+                        <li>
+                            <a href="javascript:void(0)"
+                               onclick="openChatWith(${c.id}, '${c.name.replace(/'/g, "\\'")}')"
+                               class="dropdown-item p-2 rounded-3 d-flex align-items-center gap-2 border-bottom">
+                                <div class="rounded-circle bg-info-subtle text-info fw-bold d-flex align-items-center justify-content-center"
+                                     style="width: 38px; height: 38px; font-size: 0.85rem; flex-shrink: 0;">
+                                    ${c.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="w-100 overflow-hidden">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong class="small text-dark text-truncate">${c.name}</strong>
+                                        <span class="text-muted" style="font-size: 0.65rem;">${c.time}</span>
+                                    </div>
+                                    <div class="text-muted small text-truncate" style="font-size: 0.75rem;">${c.lastMsg}</div>
+                                </div>
+                            </a>
+                        </li>
+                    `;
+                });
+                list.innerHTML = html;
+            })
+            .catch(() => {
+                list.innerHTML = '<li class="text-center py-3 text-danger small">Eroare la încărcare.</li>';
+            });
+    }
+
+    function openChatWith(partnerId, partnerName) {
+        const dropdownEl = document.getElementById('chatMenuBtn');
+        if (dropdownEl) {
+            const bsDropdown = bootstrap.Dropdown.getInstance(dropdownEl);
+            if (bsDropdown) bsDropdown.hide();
+        }
+
+        toggleChatPopup(partnerId, partnerName);
     }
 </script>
 </body>

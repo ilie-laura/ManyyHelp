@@ -1,7 +1,9 @@
 package com.mannyHelp.web.repository;
 
 import com.mannyHelp.web.models.ChatMessage;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
@@ -18,7 +20,12 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Query("SELECT m.senderId.userid FROM ChatMessage m WHERE m.receiverId.userid = :userId ORDER BY m.sentAt DESC LIMIT 1")
     Long findLastChatPartnerUserId(@Param("userId") Long userId);
 
-   
-    @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.receiverId.userid = :userId")
+
+    @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.receiverId.userid = :userId AND m.isRead = false")
     long countUnreadMessagesByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ChatMessage m SET m.isRead = true WHERE m.receiverId.userid = :receiverId AND m.senderId.userid = :senderId AND m.isRead = false")
+    void markMessagesAsRead(@Param("receiverId") Long receiverId, @Param("senderId") Long senderId);
 }

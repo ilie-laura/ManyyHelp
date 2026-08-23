@@ -33,6 +33,7 @@ public class ChatRestController {
         Users loggedUser = usersRepository.findByUsername(customUser.getUsername());
         if (loggedUser == null) return ResponseEntity.status(401).build();
 
+        chatMessageRepository.markMessagesAsRead(loggedUser.getUserid(), partnerId);
         List<ChatMessage> messages = chatMessageRepository.findConversation(loggedUser.getUserid(), partnerId);
         List<Map<String, Object>> response = new ArrayList<>();
 
@@ -84,7 +85,7 @@ public class ChatRestController {
         List<ChatMessage> allMessages = chatMessageRepository.findAll();
         Map<Long, Map<String, Object>> partnerMap = new LinkedHashMap<>();
 
-        // Filtrăm mesajele asociate utilizatorului logat
+
         for (ChatMessage m : allMessages) {
             if (m.getSenderId() == null || m.getReceiverId() == null) continue;
 
@@ -101,7 +102,7 @@ public class ChatRestController {
                 data.put("name", (partner.getNume() != null ? partner.getNume() : "") + " " + (partner.getPrenume() != null ? partner.getPrenume() : ""));
                 data.put("lastMsg", m.getContent());
                 data.put("time", m.getSentAt() != null ? m.getSentAt().toLocalTime().toString().substring(0, 5) : "");
-                partnerMap.put(partner.getUserid(), data); // păstrează ultimul mesaj per partener
+                partnerMap.put(partner.getUserid(), data);
             }
         }
 
