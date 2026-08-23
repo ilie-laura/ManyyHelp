@@ -44,13 +44,17 @@ public class UsersServiceImpl implements UsersService {
     }
 
 
-    private UsersDto mapToDto(Users user) {
+    public UsersDto mapToDto(Users user) {
+        if (user == null) {
+            return null;
+        }
+
         return UsersDto.builder()
                 .userid(user.getUserid())
                 .nume(user.getNume())
                 .prenume(user.getPrenume())
                 .username(user.getUsername())
-                .photourl(user.getPhotoUrl())
+                .photourl(user.getPhotourl())
                 .userOrProvider(user.isUserOrProvider())
                 .build();
     }
@@ -87,9 +91,15 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public UsersDto findUserById(Long id) {
-        Users user = usersRepository.findByUserid(id);
-        return mapToDto(user);
+    public UsersDto findUserById(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+
+
+        return usersRepository.findById(userId)
+                .map(this::mapToDto)
+                .orElse(null);
     }
 
 

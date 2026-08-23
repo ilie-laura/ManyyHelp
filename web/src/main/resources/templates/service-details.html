@@ -10,8 +10,8 @@
 </head>
 
 <body class="bg-light">
-<!-- 1. NAVBAR OPTIMIZAT PENTRU MOBIL & DESKTOP -->
-<nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2">
+<!-- 1. NAVBAR -->
+<nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2" style="z-index: 1050;">
     <div class="container">
         <!-- Logo -->
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2 text-dark" th:href="@{/mainPage}">
@@ -19,13 +19,12 @@
             <span style="letter-spacing: -0.5px;">Trustlist</span>
         </a>
 
-        <!-- Buton Meniu Mobil (Hamburger) -->
-        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <!-- Buton Meniu Mobil -->
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Link-uri Principale de Navigare -->
             <ul class="navbar-nav mx-auto align-items-lg-center py-2 py-lg-0">
                 <li class="nav-item">
                     <a class="nav-link fw-semibold px-lg-3 text-secondary" th:href="@{/browse-services}">
@@ -38,30 +37,25 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link fw-semibold px-lg-3 text-secondary" href="#how-it-works">
+                    <a class="nav-link fw-semibold px-lg-3 text-secondary" th:href="@{/mainPage#how-it-works}">
                         <i class="bi bi-info-circle me-1"></i> Cum funcționează
                     </a>
                 </li>
             </ul>
 
-            <!-- Zona Dreapta: Acțiuni & Profil Utilizator (aliniere curată pe mobil) -->
             <div class="d-flex flex-wrap align-items-center gap-2 pt-2 pt-lg-0 border-top border-lg-0">
-
-                <!-- Buton Furnizor -->
                 <a th:if="${loggedUser != null && loggedUser.userOrProvider}"
                    th:href="@{/services/new}"
                    class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold align-items-center gap-1">
                     <i class="bi bi-plus-lg"></i> Adaugă Serviciu
                 </a>
 
-                <!-- Buton Client -->
                 <a th:if="${loggedUser != null && !loggedUser.userOrProvider}"
                    th:href="@{/users/edit/{id}(id=${loggedUser.userid})}"
                    class="btn btn-sm btn-light text-secondary rounded-pill px-3 fw-semibold border">
                     Devino prestator
                 </a>
 
-                <!-- Calendar Programări -->
                 <a th:if="${loggedUser != null}"
                    th:href="@{/users/{id}(id=${loggedUser.userid})}"
                    class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
@@ -69,7 +63,7 @@
                     <i class="bi bi-calendar-event fs-6"></i>
                 </a>
 
-                <!-- Avatar Dropdown (Corectat poziționarea cu dropdown-menu-lg-end) -->
+                <!-- Avatar Dropdown -->
                 <div th:if="${loggedUser != null}" class="dropdown">
                     <button class="btn p-0 border-0 d-flex align-items-center gap-2 shadow-none"
                             type="button"
@@ -91,7 +85,6 @@
                         <i class="bi bi-chevron-down text-muted small"></i>
                     </button>
 
-                    <!-- Meniul se aliniază la stânga pe mobil și la dreapta pe desktop (dropdown-menu-lg-end) -->
                     <ul class="dropdown-menu dropdown-menu-start dropdown-menu-lg-end shadow border-0 rounded-4 mt-2 p-2" style="min-width: 230px;">
                         <li class="px-3 py-2 border-bottom mb-1 bg-light rounded-3">
                             <span class="d-block fw-bold text-dark small" th:text="${loggedUser.nume + ' ' + (loggedUser.prenume != null ? loggedUser.prenume : '')}">Nume User</span>
@@ -120,17 +113,16 @@
                     </ul>
                 </div>
 
-                <!-- Butoane Utilizator Nelogat -->
                 <div th:if="${loggedUser == null}" class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
                     <a th:href="@{/login}" class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold text-secondary">Login</a>
                     <a th:href="@{/register}" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold shadow-sm">Înregistrare</a>
                 </div>
             </div>
-
         </div>
     </div>
 </nav>
 
+<!-- 2. CORP PAGINĂ -->
 <div class="container py-5" th:if="${service != null}">
     <div class="row g-4">
 
@@ -174,16 +166,15 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="fw-bold mb-0"><i class="bi bi-star-fill text-warning me-2"></i>Recenzii și Evaluări</h5>
 
-                    <!-- Afișare Media Notelor -->
                     <div class="bg-light px-3 py-2 rounded-pill border">
-                        <span class="fw-bold fs-5 text-dark" th:text="${averageRating > 0 ? averageRating : 'N/A'}">4.8</span>
+                        <span class="fw-bold fs-5 text-dark" th:text="${averageRating != null and averageRating > 0 ? #numbers.formatDecimal(averageRating, 1, 1) : 'N/A'}">4.8</span>
                         <i class="bi bi-star-fill text-warning ms-1"></i>
                         <small class="text-muted ms-1" th:text="${'(' + (reviews != null ? reviews.size() : 0) + ' recenzii)'}">(12 recenzii)</small>
                     </div>
                 </div>
 
                 <!-- Alertă succes -->
-                <div th:if="${reviewSuccessMessage}" class="alert alert-success alert-dismissible fade show small mb-3" role="alert">
+                <div th:if="${reviewSuccessMessage != null}" class="alert alert-success alert-dismissible fade show small mb-3" role="alert">
                     <i class="bi bi-check-circle-fill me-1"></i> <span th:text="${reviewSuccessMessage}"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
@@ -194,13 +185,12 @@
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="fw-bold" th:text="${rev.user != null ? (rev.user.nume + ' ' + (rev.user.prenume != null ? rev.user.prenume : '')) : 'Utilizator Anonim'}">Nume Client</span>
                             <span class="text-warning fw-semibold">
-                    <i class="bi bi-star-fill"></i> <span th:text="${rev.rating}">5</span> / 5
-                </span>
+                                <i class="bi bi-star-fill"></i> <span th:text="${rev.rating}">5</span> / 5
+                            </span>
                         </div>
                         <p class="small text-secondary mb-1" th:text="${rev.comment}">Comentariu recenzie...</p>
                         <small class="text-muted d-block mb-2" style="font-size: 0.75rem;" th:if="${rev.createdAt != null}" th:text="${#temporals.format(rev.createdAt, 'dd-MM-yyyy HH:mm')}">11-08-2026</small>
 
-                        <!-- Afișare Răspuns Furnizor (dacă există deja) -->
                         <div th:if="${rev.providerResponse != null}" class="ms-4 p-3 bg-light border-start border-3 border-info rounded-2 mt-2">
                             <div class="fw-bold small text-info mb-1">
                                 <i class="bi bi-reply-fill me-1"></i> Răspunsul furnizorului:
@@ -208,11 +198,10 @@
                             <p class="small text-dark mb-0" th:text="${rev.providerResponse}">Multumim pentru recenzie!</p>
                         </div>
 
-                        <!-- Formular Răspuns Furnizor (dacă utilizatorul conectat este furnizorul și nu a răspuns încă) -->
                         <div th:if="${rev.providerResponse == null && loggedUser != null && loggedUser.userOrProvider}" class="ms-4 mt-2">
                             <form th:action="@{/reviews/{id}/respond(id=${rev.reviewId})}" method="post" class="d-flex gap-2">
                                 <input type="hidden" name="serviceId" th:value="${service.serviceid}" />
-                                <input type="text" name="providerResponse" class="form-control form-control-sm" placeholder="Scrie un răspuns..." required>
+                                <input type="text" name="providerResponse" class="form-control form-control-sm shadow-none" placeholder="Scrie un răspuns..." required>
                                 <button type="submit" class="btn btn-sm btn-outline-info">Răspunde</button>
                             </form>
                         </div>
@@ -229,11 +218,11 @@
                 <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-heart-fill text-info me-2"></i>Adaugă o recenzie</h6>
                 <form th:action="@{/add-review}" method="post" class="bg-light p-3 rounded-3 border">
                     <input type="hidden" name="serviceId" th:value="${service.serviceid}" />
-                    <input type="hidden" name="providerId" th:value="${oferitor != null ? oferitor.providerid : (service != null ? service.providerId : 0)}" />
+                    <input type="hidden" name="providerId" th:value="${oferitor != null and oferitor.providerid != null ? oferitor.providerid : (service != null and service.providerId != null ? service.providerId : 0)}" />
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Nota acordată</label>
-                        <select name="rating" class="form-select form-select-sm" required style="max-width: 200px;">
+                        <label for="ratingSelect" class="form-label small fw-bold">Nota acordată</label>
+                        <select id="ratingSelect" name="rating" class="form-select form-select-sm shadow-none" required style="max-width: 200px;">
                             <option value="5">5 ★★★★★ (Excelent)</option>
                             <option value="4">4 ★★★★☆ (Foarte bun)</option>
                             <option value="3">3 ★★★☆☆ (Mediu)</option>
@@ -243,8 +232,8 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Comentariu</label>
-                        <textarea name="comment" class="form-control form-control-sm" rows="3" placeholder="Scrie părerea ta despre serviciile oferite..." required></textarea>
+                        <label for="commentArea" class="form-label small fw-bold">Comentariu</label>
+                        <textarea id="commentArea" name="comment" class="form-control form-control-sm shadow-none" rows="3" placeholder="Scrie părerea ta despre serviciile oferite..." required></textarea>
                     </div>
 
                     <button type="submit" class="btn btn-sm btn-info text-white fw-bold px-4 rounded-pill">
@@ -254,34 +243,47 @@
             </div>
         </div>
 
-        <!-- Sidebar Programare -->
+        <!-- Sidebar Programare & Chat -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 90px;">
                 <h5 class="fw-bold mb-3">Programează o vizită</h5>
                 <p class="text-muted small">Alege data și ora pentru a rezerva acest serviciu.</p>
 
-                <!-- Mesaj de succes dacă programarea s-a salvat -->
-                <div th:if="${successMessage}" class="alert alert-success small mb-3" th:text="${successMessage}"></div>
+                <div th:if="${successMessage != null}" class="alert alert-success small mb-3" th:text="${successMessage}"></div>
 
                 <form th:action="@{/book-service}" method="post">
                     <input type="hidden" name="serviceId" th:value="${service.serviceid}">
-                    <input type="hidden" name="providerId"
-                           th:value="${oferitor != null ? oferitor.providerid : (service != null ? service.providerId : 0)}" />
+                    <input type="hidden" name="providerId" th:value="${oferitor != null and oferitor.providerid != null ? oferitor.providerid : (service != null and service.providerId != null ? service.providerId : 0)}" />
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Data programării</label>
-                        <input type="date" name="bookingDate" class="form-control" required>
+                        <label for="bookingDate" class="form-label small fw-bold">Data programării</label>
+                        <input type="date" id="bookingDate" name="bookingDate" class="form-control shadow-none" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Ora</label>
-                        <input type="time" name="bookingTime" class="form-control" required>
+                        <label for="bookingTime" class="form-label small fw-bold">Ora</label>
+                        <input type="time" id="bookingTime" name="bookingTime" class="form-control shadow-none" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="detaliiSpecifice" class="form-label small fw-bold">Detalii specifice (mesaj prestator)</label>
+                        <textarea id="detaliiSpecifice" name="detaliiSpecifice" class="form-control form-control-sm shadow-none" rows="2" placeholder="Detalii utile pentru prestator..."></textarea>
                     </div>
 
                     <button type="submit" class="btn btn-info text-white w-100 fw-bold py-2 rounded-3">
                         <i class="bi bi-calendar-check me-1"></i> Programează Acum
                     </button>
                 </form>
+
+                <hr class="my-3">
+
+                <!-- Buton Mesaj către Prestator (Securizat) -->
+                <div class="text-center" th:if="${oferitor != null or (service != null and service.providerId != null)}">
+                    <a th:href="@{/chat/{id}(id=${oferitor != null and oferitor.providerid != null ? oferitor.providerid : service.providerId})}"
+                       class="btn btn-outline-info rounded-pill w-100 fw-bold py-2">
+                        <i class="bi bi-chat-dots-fill me-1"></i> Trimite Mesaj Prestatorului
+                    </a>
+                </div>
             </div>
         </div>
 
