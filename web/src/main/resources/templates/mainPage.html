@@ -20,7 +20,6 @@
             color: #1e293b;
         }
 
-        /* Offset ancoră când există navbar fix */
         #how-it-works {
             scroll-margin-top: 80px;
         }
@@ -56,7 +55,6 @@
             margin-top: 6px;
         }
 
-        /* Search input reset & borders */
         .search-container .form-control,
         .search-container .form-select {
             font-size: 0.92rem;
@@ -172,9 +170,89 @@
             background: #06171f;
             color: #94a3b8;
         }
+
+        /* 6. POPUP WIDGET STYLES */
+        .chat-widget-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 1060;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .chat-widget-btn:hover {
+            transform: scale(1.05);
+            background-color: #0369a1;
+        }
+        .chat-popup-window {
+            position: fixed;
+            bottom: 95px;
+            right: 24px;
+            width: 360px;
+            max-width: 90vw;
+            height: 480px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 1060;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .chat-popup-header {
+            background: radial-gradient(circle at top right, #0f4c5c 0%, #08242f 100%);
+            color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-popup-body {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .popup-msg {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            word-wrap: break-word;
+        }
+        .popup-msg-sent {
+            align-self: flex-end;
+            background-color: #0284c7;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+        .popup-msg-recv {
+            align-self: flex-start;
+            background-color: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 2px;
+        }
     </style>
 </head>
 <body>
+
+<!-- 1. NAVBAR CU CHAT DROPDOWN -->
 <nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2" style="z-index: 1050;">
     <div class="container">
         <!-- Logo -->
@@ -222,21 +300,36 @@
                     Devino prestator
                 </a>
 
-                <!-- 1. ICONIȚĂ CHAT CU NOTIFICĂRI -->
-                <a th:if="${loggedUser != null}"
-                   th:href="@{/chat/{id}(id=${lastChatPartnerId != null ? lastChatPartnerId : loggedUser.userid})}"
-                   class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
-                   title="Mesaje & Chat">
-                    <i class="bi bi-chat-dots fs-6"></i>
+                <!-- 1. ICONIȚĂ CHAT CU DROPDOWN LISTA DE CONVERSAȚII -->
+                <div th:if="${loggedUser != null}" class="dropdown">
+                    <button class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
+                            type="button"
+                            id="chatMenuBtn"
+                            data-bs-toggle="dropdown"
+                            data-bs-display="static"
+                            aria-expanded="false"
+                            onclick="loadNavbarConversations()"
+                            title="Mesaje & Conversații">
+                        <i class="bi bi-chat-dots fs-5"></i>
+                        <span th:if="${unreadChatCount != null and unreadChatCount > 0}"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white"
+                              style="font-size: 0.65rem;"
+                              th:text="${unreadChatCount}">1</span>
+                    </button>
 
-                    <!-- Badge Notificări (apare doar dacă există mesaje) -->
-                    <span th:if="${unreadChatCount != null and unreadChatCount > 0}"
-                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white p-1"
-                          style="font-size: 0.65rem; min-width: 18px;"
-                          th:text="${unreadChatCount > 99 ? '99+' : unreadChatCount}">
-                        1
-                    </span>
-                </a>
+                    <!-- Lista partenerilor de conversație -->
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2"
+                        style="width: 320px; max-height: 400px; overflow-y: auto;"
+                        id="navbarConversationsList">
+                        <li class="px-3 py-2 border-bottom fw-bold small text-dark d-flex justify-content-between align-items-center">
+                            <span>Mesaje Recente</span>
+                            <i class="bi bi-chat-left-text text-info"></i>
+                        </li>
+                        <li class="text-center py-3 text-muted small">
+                            Se încarcă discuțiile...
+                        </li>
+                    </ul>
+                </div>
 
                 <!-- 2. ICONIȚĂ PROGRAMĂRI -->
                 <a th:if="${loggedUser != null}"
@@ -280,7 +373,6 @@
                                 <i class="bi bi-person me-2 text-secondary"></i> Profilul meu
                             </a>
                         </li>
-
                         <li>
                             <a class="dropdown-item rounded-2 py-2 small" th:href="@{/users/edit/{id}(id=${loggedUser.userid})}">
                                 <i class="bi bi-gear me-2 text-secondary"></i> Setări cont
@@ -322,11 +414,8 @@
             Instalatori, electricieni, tehnicieni, curățenie și multe altele — compară recenzii autentice și programează rapid.
         </p>
 
-
-        <form th:action="@{/browse-services#results}" method="get" class="search-container card p-3 shadow-lg border-0 mb-5"  style="max-width: 960px; background: #ffffff; border-radius: 18px;">
+        <form th:action="@{/browse-services#results}" method="get" class="search-container card p-3 shadow-lg border-0 mb-5" style="max-width: 960px; background: #ffffff; border-radius: 18px;">
             <div class="row g-2 align-items-center">
-
-                <!-- 1. Keyword -->
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
                         <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-search"></i></span>
@@ -334,19 +423,15 @@
                     </div>
                 </div>
 
-                <!-- 2. Oraș (cu Datalist pentru Dropdown / Autocomplete la tastare) -->
                 <div class="col-lg-3 col-md-6 border-start-md">
                     <div class="input-group">
                         <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-geo-alt"></i></span>
                         <input list="citiesList" name="location" class="form-control shadow-none text-dark ps-0" placeholder="Alege sau scrie orașul" th:value="${param.location}">
 
-                        <!-- Lista de orașe pentru sugestii automate -->
                         <datalist id="citiesList">
-                            <!-- Opțiuni dinamice din baza de date (dacă există în model) -->
                             <th:block th:if="${cities != null}">
                                 <option th:each="city : ${cities}" th:value="${city}"></option>
                             </th:block>
-                            <!-- Sugestii standard implicite -->
                             <option value="București"></option>
                             <option value="Cluj-Napoca"></option>
                             <option value="Timișoara"></option>
@@ -363,7 +448,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Categorie -->
                 <div class="col-lg-2 col-md-4 border-start-lg">
                     <div class="input-group">
                         <span class="input-group-text bg-transparent border-0 text-muted d-none d-lg-flex"><i class="bi bi-grid"></i></span>
@@ -379,7 +463,6 @@
                     </div>
                 </div>
 
-                <!-- 4. Sortare (Rating, Preț etc.) -->
                 <div class="col-lg-2 col-md-4 border-start-lg">
                     <div class="input-group">
                         <span class="input-group-text bg-transparent border-0 text-muted d-none d-lg-flex"><i class="bi bi-sort-down"></i></span>
@@ -392,7 +475,6 @@
                     </div>
                 </div>
 
-                <!-- 5. Buton Căutare -->
                 <div class="col-lg-2 col-md-4">
                     <button type="submit" class="btn btn-info text-white w-100 fw-bold py-2 rounded-3">
                         <i class="bi bi-search me-1"></i> Caută
@@ -401,7 +483,6 @@
             </div>
         </form>
 
-        <!-- Stats -->
         <div class="row pt-2 g-4" style="max-width: 600px;">
             <div class="col-4">
                 <div class="stat-number-dark" th:text="${services != null ? #lists.size(services) + '+' : '12+'}">12+</div>
@@ -585,7 +666,7 @@
                         <h5 class="fw-bold mb-1 text-dark" th:text="${s.numeServiciu}">Nume Serviciu</h5>
                         <p class="text-muted small mb-2"><i class="bi bi-geo-alt text-danger"></i> <span th:text="${s.locatie}">București</span></p>
                     </div>
-                    <!-- Adaugă rating-ul pe card -->
+
                     <div class="d-flex align-items-center gap-1 text-warning small mb-2">
                         <i class="bi bi-star-fill"></i>
                         <span class="fw-bold text-dark" th:text="${s.rating != null ? #numbers.formatDecimal(s.rating, 1, 1) : '0.0'}">5.0</span>
@@ -616,6 +697,174 @@
     </div>
 </footer>
 
+<!-- BUTON TRIGGER PLUTITOR (CHAT ASISTENȚĂ / CONVERSAȚIE RAPIDĂ) -->
+<button class="chat-widget-btn" onclick="toggleChatPopup()" title="Chat Asistență / Prestator">
+    <i class="bi bi-chat-dots-fill"></i>
+</button>
+
+<!-- FEREASTRA POPUP CHAT -->
+<div class="chat-popup-window" id="chatPopup">
+    <!-- Header -->
+    <div class="chat-popup-header">
+        <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-info text-white fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <div>
+                <div class="fw-bold small" id="popupPartnerName">Conversație</div>
+                <small class="text-info" style="font-size: 0.65rem;">Activ</small>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white shadow-none" style="font-size: 0.75rem;" onclick="toggleChatPopup()"></button>
+    </div>
+
+    <!-- Mesaje Container -->
+    <div class="chat-popup-body" id="popupChatBody">
+        <div class="text-center text-muted small my-auto">Selectează o conversație sau începe una nouă!</div>
+    </div>
+
+    <!-- Input Form -->
+    <form onsubmit="handlePopupSend(event)" class="p-2 bg-white border-top d-flex gap-2 m-0">
+        <input type="hidden" id="popupReceiverId" th:value="${lastChatPartnerId != null ? lastChatPartnerId : 0}">
+        <input type="text" id="popupMsgInput" class="form-control form-control-sm rounded-pill shadow-none" placeholder="Scrie un mesaj..." required autocomplete="off">
+        <button type="submit" class="btn btn-sm btn-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-send-fill" style="font-size: 0.75rem;"></i>
+        </button>
+    </form>
+</div>
+
+<!-- SCRIPTS: BOOTSTRAP + CHAT LOGIC -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let chatInterval = null;
+
+    function toggleChatPopup(partnerId = null, partnerName = null) {
+        const popup = document.getElementById("chatPopup");
+        const isOpen = popup.style.display === "flex";
+
+        if (partnerId) {
+            document.getElementById("popupReceiverId").value = partnerId;
+        }
+        if (partnerName) {
+            document.getElementById("popupPartnerName").innerText = partnerName;
+        }
+
+        if (isOpen && !partnerId) {
+            popup.style.display = "none";
+            clearInterval(chatInterval);
+        } else {
+            popup.style.display = "flex";
+            loadPopupMessages();
+            clearInterval(chatInterval);
+            chatInterval = setInterval(loadPopupMessages, 3000);
+        }
+    }
+
+    function loadPopupMessages() {
+        const receiverId = document.getElementById("popupReceiverId").value;
+        if (!receiverId || receiverId === "0") {
+            document.getElementById("popupChatBody").innerHTML = '<div class="text-center text-muted small my-auto">Alege un partener din lista de mesaje pentru conversație.</div>';
+            return;
+        }
+
+        fetch(`/api/chat/${receiverId}/messages`)
+            .then(res => res.json())
+            .then(messages => {
+                const body = document.getElementById("popupChatBody");
+                if (messages.length === 0) {
+                    body.innerHTML = '<div class="text-center text-muted small my-auto">Niciun mesaj încă. Trimite primul mesaj!</div>';
+                    return;
+                }
+
+                body.innerHTML = messages.map(m => `
+                    <div class="popup-msg ${m.sentByMe ? 'popup-msg-sent' : 'popup-msg-recv'}">
+                        <div>${m.content}</div>
+                        <small class="d-block text-end opacity-75" style="font-size: 0.6rem;">${m.time}</small>
+                    </div>
+                `).join('');
+
+                body.scrollTop = body.scrollHeight;
+            })
+            .catch(() => {});
+    }
+
+    function handlePopupSend(e) {
+        e.preventDefault();
+        const receiverId = document.getElementById("popupReceiverId").value;
+        const input = document.getElementById("popupMsgInput");
+        const content = input.value.trim();
+
+        if (!content || !receiverId || receiverId === "0") return;
+
+        const formData = new URLSearchParams();
+        formData.append("receiverId", receiverId);
+        formData.append("content", content);
+
+        fetch("/api/chat/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+        }).then(res => {
+            if (res.ok) {
+                input.value = "";
+                loadPopupMessages();
+            }
+        });
+    }
+
+    function loadNavbarConversations() {
+        const list = document.getElementById("navbarConversationsList");
+
+        fetch('/api/chat/conversations')
+            .then(res => res.json())
+            .then(conversations => {
+                if (!conversations || conversations.length === 0) {
+                    list.innerHTML = `
+                        <li class="px-3 py-2 border-bottom fw-bold small text-dark">Mesaje Recente</li>
+                        <li class="text-center py-4 text-muted small">Nu ai nicio conversație începută.</li>
+                    `;
+                    return;
+                }
+
+                let html = '<li class="px-3 py-2 border-bottom fw-bold small text-dark">Mesaje Recente</li>';
+                conversations.forEach(c => {
+                    html += `
+                        <li>
+                            <a href="javascript:void(0)"
+                               onclick="openChatWith(${c.id}, '${c.name.replace(/'/g, "\\'")}')"
+                               class="dropdown-item p-2 rounded-3 d-flex align-items-center gap-2 border-bottom">
+                                <div class="rounded-circle bg-info-subtle text-info fw-bold d-flex align-items-center justify-content-center"
+                                     style="width: 38px; height: 38px; font-size: 0.85rem; flex-shrink: 0;">
+                                    ${c.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="w-100 overflow-hidden">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong class="small text-dark text-truncate">${c.name}</strong>
+                                        <span class="text-muted" style="font-size: 0.65rem;">${c.time}</span>
+                                    </div>
+                                    <div class="text-muted small text-truncate" style="font-size: 0.75rem;">${c.lastMsg}</div>
+                                </div>
+                            </a>
+                        </li>
+                    `;
+                });
+                list.innerHTML = html;
+            })
+            .catch(() => {
+                list.innerHTML = '<li class="text-center py-3 text-danger small">Eroare la încărcarea conversațiilor.</li>';
+            });
+    }
+
+    function openChatWith(partnerId, partnerName) {
+        const dropdownEl = document.getElementById('chatMenuBtn');
+        if (dropdownEl) {
+            const bsDropdown = bootstrap.Dropdown.getInstance(dropdownEl);
+            if (bsDropdown) bsDropdown.hide();
+        }
+
+        toggleChatPopup(partnerId, partnerName);
+    }
+</script>
 </body>
 </html>

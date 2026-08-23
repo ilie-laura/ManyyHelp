@@ -589,5 +589,198 @@
 
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- STILURI POPUP WIDGET -->
+<style>
+    .chat-widget-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background-color: #0284c7;
+        color: white;
+        border: none;
+        box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        z-index: 1060;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+    .chat-widget-btn:hover {
+        transform: scale(1.05);
+        background-color: #0369a1;
+    }
+    .chat-popup-window {
+        position: fixed;
+        bottom: 95px;
+        right: 24px;
+        width: 360px;
+        max-width: 90vw;
+        height: 480px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 12px 35px rgba(15, 23, 42, 0.15);
+        display: none;
+        flex-direction: column;
+        z-index: 1060;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+    .chat-popup-header {
+        background: radial-gradient(circle at top right, #0f4c5c 0%, #08242f 100%);
+        color: #fff;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .chat-popup-body {
+        flex: 1;
+        padding: 12px;
+        overflow-y: auto;
+        background-color: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .popup-msg {
+        max-width: 80%;
+        padding: 8px 12px;
+        border-radius: 14px;
+        font-size: 0.85rem;
+        word-wrap: break-word;
+    }
+    .popup-msg-sent {
+        align-self: flex-end;
+        background-color: #0284c7;
+        color: white;
+        border-bottom-right-radius: 2px;
+    }
+    .popup-msg-recv {
+        align-self: flex-start;
+        background-color: #ffffff;
+        color: #1e293b;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 2px;
+    }
+</style>
+
+<!-- BUTON TRIGGER PLUTITOR -->
+<button class="chat-widget-btn" onclick="toggleChatPopup()" title="Chat Asistență / Prestator">
+    <i class="bi bi-chat-dots-fill"></i>
+</button>
+
+<!-- FEREASTRA POPUP CHAT -->
+<div class="chat-popup-window" id="chatPopup">
+    <!-- Header -->
+    <div class="chat-popup-header">
+        <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-info text-white fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <div>
+                <div class="fw-bold small" id="popupPartnerName" th:text="${oferitor != null ? oferitor.numeCompanie : 'Mesaje Trustlist'}">Conversație</div>
+                <small class="text-info" style="font-size: 0.65rem;">Online</small>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white shadow-none" style="font-size: 0.75rem;" onclick="toggleChatPopup()"></button>
+    </div>
+
+    <!-- Mesaje Container -->
+    <div class="chat-popup-body" id="popupChatBody">
+        <div class="text-center text-muted small my-auto">Se încarcă conversația...</div>
+    </div>
+
+    <!-- Input Form -->
+    <form onsubmit="handlePopupSend(event)" class="p-2 bg-white border-top d-flex gap-2">
+        <input type="hidden" id="popupReceiverId" th:value="${oferitor != null and oferitor.providerid != null ? oferitor.providerid : (lastChatPartnerId != null ? lastChatPartnerId : 0)}">
+        <input type="text" id="popupMsgInput" class="form-control form-control-sm rounded-pill shadow-none" placeholder="Scrie un mesaj..." required autocomplete="off">
+        <button type="submit" class="btn btn-sm btn-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-send-fill" style="font-size: 0.75rem;"></i>
+        </button>
+    </form>
+</div>
+
+<!-- LOGICĂ JS AJAX PENTRU CHAT -->
+<script>
+    let chatInterval = null;
+
+    function toggleChatPopup(partnerId = null, partnerName = null) {
+        const popup = document.getElementById("chatPopup");
+        const isOpen = popup.style.display === "flex";
+
+        if (partnerId) {
+            document.getElementById("popupReceiverId").value = partnerId;
+        }
+        if (partnerName) {
+            document.getElementById("popupPartnerName").innerText = partnerName;
+        }
+
+        if (isOpen) {
+            popup.style.display = "none";
+            clearInterval(chatInterval);
+        } else {
+            popup.style.display = "flex";
+            loadPopupMessages();
+            chatInterval = setInterval(loadPopupMessages, 3000); // Polling la 3 secunde
+        }
+    }
+
+    function loadPopupMessages() {
+        const receiverId = document.getElementById("popupReceiverId").value;
+        if (!receiverId || receiverId === "0") {
+            document.getElementById("popupChatBody").innerHTML = '<div class="text-center text-muted small my-auto">Alege un prestator pentru conversație.</div>';
+            return;
+        }
+
+        fetch(`/api/chat/${receiverId}/messages`)
+            .then(res => res.json())
+            .then(messages => {
+                const body = document.getElementById("popupChatBody");
+                if (messages.length === 0) {
+                    body.innerHTML = '<div class="text-center text-muted small my-auto">Niciun mesaj încă. Salută prestatorul!</div>';
+                    return;
+                }
+
+                body.innerHTML = messages.map(m => `
+                    <div class="popup-msg ${m.sentByMe ? 'popup-msg-sent' : 'popup-msg-recv'}">
+                        <div>${m.content}</div>
+                        <small class="d-block text-end opacity-75" style="font-size: 0.6rem;">${m.time}</small>
+                    </div>
+                `).join('');
+
+                body.scrollTop = body.scrollHeight;
+            })
+            .catch(() => {});
+    }
+
+    function handlePopupSend(e) {
+        e.preventDefault();
+        const receiverId = document.getElementById("popupReceiverId").value;
+        const input = document.getElementById("popupMsgInput");
+        const content = input.value.trim();
+
+        if (!content) return;
+
+        const formData = new URLSearchParams();
+        formData.append("receiverId", receiverId);
+        formData.append("content", content);
+
+        fetch("/api/chat/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+        }).then(res => {
+            if (res.ok) {
+                input.value = "";
+                loadPopupMessages();
+            }
+        });
+    }
+</script>
 </body>
 </html>
