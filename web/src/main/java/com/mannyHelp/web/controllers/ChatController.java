@@ -90,6 +90,7 @@ public class ChatController {
                     .receiverId(receiver)
                     .content(content.trim())
                     .sentAt(LocalDateTime.now())
+                    .isRead(false)
                     .build();
             chatMessageRepository.save(message);
         }

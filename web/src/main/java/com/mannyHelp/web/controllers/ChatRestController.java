@@ -75,6 +75,21 @@ public class ChatRestController {
 
         return ResponseEntity.badRequest().build();
     }
+    @GetMapping("/unread-count")
+    public ResponseEntity<Map<String, Object>> getUnreadCount(@AuthenticationPrincipal Object principal) {
+        if (principal == null) return ResponseEntity.status(401).build();
+
+        String username = (principal instanceof org.springframework.security.core.userdetails.UserDetails)
+                ? ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername()
+                : principal.toString();
+
+        Users user = usersRepository.findByUsername(username);
+        long count = (user != null) ? chatMessageRepository.countUnreadMessagesByUserId(user.getUserid()) : 0;
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("unreadCount", count);
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/conversations")
     public ResponseEntity<List<Map<String, Object>>> getConversations(@AuthenticationPrincipal UserDetails customUser) {
         if (customUser == null) return ResponseEntity.status(401).build();

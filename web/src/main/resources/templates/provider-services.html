@@ -493,6 +493,36 @@
 
         toggleChatPopup(partnerId, partnerName);
     }
+    // Verifică periodic dacă au apărut mesaje noi și actualizează iconița din Navbar
+    function checkLiveUnreadCount() {
+        fetch('/api/chat/unread-count')
+            .then(res => res.json())
+            .then(data => {
+                const count = data.unreadCount || 0;
+                const chatBtn = document.getElementById('chatMenuBtn');
+                if (!chatBtn) return;
+
+                let badge = chatBtn.querySelector('.badge');
+
+                if (count > 0) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white p-1';
+                        badge.style.fontSize = '0.65rem';
+                        badge.style.minWidth = '18px';
+                        chatBtn.appendChild(badge);
+                    }
+                    badge.style.display = 'inline-block';
+                    badge.innerText = count > 99 ? '99+' : count;
+                } else if (badge) {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(() => {});
+    }
+
+    // Rulează verificarea la fiecare 5 secunde
+    setInterval(checkLiveUnreadCount, 15000);
 </script>
 </body>
 </html>
