@@ -21,7 +21,7 @@ public class Service {
     private String numeServiciu;
     private Double pret;
     private String photourl;
-    private String Locatie;
+    private String locatie;
     private String categorie;
 
     @CreationTimestamp

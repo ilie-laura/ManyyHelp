@@ -1,4 +1,4 @@
-package com.mannyHelp.web.security;
+package com.mannyHelp.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +18,7 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
 
 
-                        .requestMatchers("/", "/mainPage", "/browse-services", "/users-list", "/service/**", "/providers/**").permitAll()
+                        .requestMatchers("/", "/mainPage", "/browser-services", "/users-list", "/service/**", "/providers/**").permitAll()
                         .requestMatchers("/login", "/register").permitAll()
 
 

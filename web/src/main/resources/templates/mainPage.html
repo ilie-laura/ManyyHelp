@@ -270,7 +270,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto align-items-lg-center py-2 py-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link fw-semibold px-lg-3 text-secondary" th:href="@{/browse-services}">
+                    <a class="nav-link fw-semibold px-lg-3 text-secondary" th:href="@{/browser-services}">
                         <i class="bi bi-search me-1 text-info"></i> Caută servicii
                     </a>
                 </li>
@@ -415,7 +415,8 @@
             Instalatori, electricieni, tehnicieni, curățenie și multe altele — compară recenzii autentice și programează rapid.
         </p>
 
-        <form th:action="@{/browse-services#results}" method="get" class="search-container card p-3 shadow-lg border-0 mb-5" style="max-width: 960px; background: #ffffff; border-radius: 18px;">
+        <!-- FORMULARUL TRIMIT LA RUTA /browser-services -->
+        <form th:action="@{/browser-services}" method="get" class="search-container card p-3 shadow-lg border-0 mb-5" style="max-width: 960px; background: #ffffff; border-radius: 18px;">
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
@@ -631,7 +632,7 @@
         </div>
 
         <div class="text-center pt-2">
-            <a th:href="@{/browse-services}" class="btn btn-cta-glow text-white rounded-pill px-5 py-3 fw-bold mb-4">
+            <a th:href="@{/browser-services}" class="btn btn-cta-glow text-white rounded-pill px-5 py-3 fw-bold mb-4">
                 <i class="bi bi-rocket-takeoff me-2"></i> Începe acum căutarea
             </a>
 
@@ -652,7 +653,7 @@
                 <h3 class="fw-bold text-dark mb-1">Servicii Recomandate</h3>
                 <p class="text-muted mb-0">Explorează câteva dintre cele mai solicitate servicii de pe platformă.</p>
             </div>
-            <a th:href="@{/browse-services}" class="btn btn-sm btn-outline-info rounded-pill px-3 fw-semibold">Vezi toate</a>
+            <a th:href="@{/browser-services}" class="btn btn-sm btn-outline-info rounded-pill px-3 fw-semibold">Vezi toate</a>
         </div>
 
         <div class="row g-4">
@@ -691,21 +692,87 @@
     </div>
 </section>
 
-<!-- 6. FOOTER -->
+<!-- 6. SECȚIUNE FAQ -->
+<section class="py-5 bg-white border-top">
+    <div class="container" style="max-width: 860px;">
+        <div class="text-center mb-5">
+            <span class="badge bg-info-subtle text-info fw-bold px-3 py-2 rounded-pill mb-2">
+                <i class="bi bi-question-circle-fill me-1"></i> Răspunsuri Rapide
+            </span>
+            <h3 class="fw-bold text-dark">Întrebări Frecvente</h3>
+            <p class="text-muted small">Tot ce trebuie să știi înainte de a contracta un prestator pe Trustlist</p>
+        </div>
+
+        <div class="accordion accordion-flush" id="faqAccordion">
+            <div class="accordion-item border rounded-3 mb-3 overflow-hidden shadow-sm">
+                <h2 class="accordion-header" id="faqHeading1">
+                    <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+                        Cât costă utilizarea platformei Trustlist?
+                    </button>
+                </h2>
+                <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-secondary small">
+                        Pentru clienți, căutarea specialiștilor, trimiterea mesajelor și programările sunt <strong>100% gratuite</strong>. Nu există taxe ascunse sau comisioane de intermediere adăugate la prețul afișat de prestator.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border rounded-3 mb-3 overflow-hidden shadow-sm">
+                <h2 class="accordion-header" id="faqHeading2">
+                    <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                        Cum sunt verificați meșterii și furnizorii de servicii?
+                    </button>
+                </h2>
+                <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-secondary small">
+                        Fiecare prestator cu insigna <em>„Provider Verificat”</em> a trecut printr-un proces de confirmare a datelor de contact, a experienței declarate și a identității/firmei. Recenziile sunt lăsate exclusiv de clienți reali după finalizarea programărilor.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border rounded-3 mb-3 overflow-hidden shadow-sm">
+                <h2 class="accordion-header" id="faqHeading3">
+                    <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                        Cum și când se efectuează plata pentru lucrare?
+                    </button>
+                </h2>
+                <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-secondary small">
+                        Plata se realizează direct către meseriaș (numerar, transfer sau card conform opțiunilor furnizorului), de regulă la fața locului, după recepția și inspectarea calității lucrării finalizate.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item border rounded-3 mb-3 overflow-hidden shadow-sm">
+                <h2 class="accordion-header" id="faqHeading4">
+                    <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                        Ce fac dacă trebuie să anulez sau să reprogramez o lucrare?
+                    </button>
+                </h2>
+                <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-secondary small">
+                        Poți accesa secțiunea <em>„Programările mele”</em> din profilul tău pentru a modifica statusul sau poți trimite un mesaj direct prestatorului prin intermediul widget-ului de chat integrat.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. FOOTER -->
 <footer class="bg-footer-dark py-4 text-center small">
     <div class="container text-light opacity-75">
         &copy; 2026 Trustlist Inc. Toate drepturile rezervate.
     </div>
 </footer>
 
-<!-- BUTON TRIGGER PLUTITOR (CHAT ASISTENȚĂ / CONVERSAȚIE RAPIDĂ) -->
+<!-- BUTON TRIGGER PLUTITOR -->
 <button class="chat-widget-btn" onclick="toggleChatPopup()" title="Chat Asistență / Prestator">
     <i class="bi bi-chat-dots-fill"></i>
 </button>
 
 <!-- FEREASTRA POPUP CHAT -->
 <div class="chat-popup-window" id="chatPopup">
-    <!-- Header -->
     <div class="chat-popup-header">
         <div class="d-flex align-items-center gap-2">
             <div class="rounded-circle bg-info text-white fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
@@ -719,12 +786,10 @@
         <button type="button" class="btn-close btn-close-white shadow-none" style="font-size: 0.75rem;" onclick="toggleChatPopup()"></button>
     </div>
 
-    <!-- Mesaje Container -->
     <div class="chat-popup-body" id="popupChatBody">
         <div class="text-center text-muted small my-auto">Selectează o conversație sau începe una nouă!</div>
     </div>
 
-    <!-- Input Form -->
     <form onsubmit="handlePopupSend(event)" class="p-2 bg-white border-top d-flex gap-2 m-0">
         <input type="hidden" id="popupReceiverId" th:value="${lastChatPartnerId != null ? lastChatPartnerId : 0}">
         <input type="text" id="popupMsgInput" class="form-control form-control-sm rounded-pill shadow-none" placeholder="Scrie un mesaj..." required autocomplete="off">
@@ -734,7 +799,7 @@
     </form>
 </div>
 
-<!-- SCRIPTS: BOOTSTRAP + CHAT LOGIC -->
+<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -789,6 +854,7 @@
             })
             .catch(() => {});
     }
+
     function handlePopupSend(e) {
         e.preventDefault();
         const receiverId = document.getElementById("popupReceiverId").value;
@@ -800,7 +866,6 @@
             return;
         }
 
-        // Preluăm token-ul CSRF
         const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
 
@@ -885,14 +950,13 @@
             const bsDropdown = bootstrap.Dropdown.getInstance(dropdownEl);
             if (bsDropdown) bsDropdown.hide();
 
-
             const badge = dropdownEl.querySelector('.badge');
             if (badge) badge.style.display = 'none';
         }
 
         toggleChatPopup(partnerId, partnerName);
     }
-    // Verifică periodic dacă au apărut mesaje noi și actualizează iconița din Navbar
+
     function checkLiveUnreadCount() {
         fetch('/api/chat/unread-count')
             .then(res => res.json())

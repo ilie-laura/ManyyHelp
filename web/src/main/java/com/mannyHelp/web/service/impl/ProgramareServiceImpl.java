@@ -7,6 +7,7 @@ import com.mannyHelp.web.repository.ProgramareRepository;
 import com.mannyHelp.web.repository.ServiceRepository;
 import com.mannyHelp.web.repository.UsersRepository;
 import com.mannyHelp.web.service.ProgramareService;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -116,4 +117,5 @@ public class ProgramareServiceImpl implements ProgramareService {
                 .reviewTrimis(programare.isReviewTrimis())
                 .build();
     }
+
 }

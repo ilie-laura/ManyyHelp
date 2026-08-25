@@ -81,12 +81,12 @@ public class UsersController {
         double providerAverageRating = 0.0;
 
         if (Boolean.TRUE.equals(user.getUserOrProvider())) {
-            // DACĂ ESTE PROVIDER: Preluăm programările primite, recenziile clienților și media
+            // DACĂ ESTE PROVIDER:
             programari = programareService.getProgramariByProviderUserId(userId);
             providerReceivedReviews = recenzieService.getRecenziiByProvider(userId);
             providerAverageRating = recenzieService.getAverageRatingByProvider(userId);
         } else {
-            // DACĂ ESTE CLIENT: Preluăm programările făcute și recenziile scrise de el
+            // DACĂ ESTE CLIENT:
             programari = programareService.getProgramariByUserId(userId);
             if (loggedUser != null && loggedUser.getUserid().equals(userId)) {
                 userReviews = recenzieService.getRecenziiByUserId(userId, reviewLimit);

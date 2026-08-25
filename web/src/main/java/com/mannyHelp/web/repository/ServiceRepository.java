@@ -18,11 +18,11 @@ public interface ServiceRepository extends JpaRepository<Service, Integer>, JpaS
     @Query("SELECT s FROM Service s WHERE " +
             "(:keyword IS NULL OR :keyword = '' OR " +
             " LOWER(s.numeServiciu) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            " LOWER(s.Locatie) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            " LOWER(s.locatie) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             " LOWER(s.categorie) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
             "AND " +
-            "(:location IS NULL OR :location = '' OR " +
-            " LOWER(s.Locatie) LIKE LOWER(CONCAT('%', :location, '%')))")
+            "(:Locatie IS NULL OR :Locatie = '' OR " +
+            " LOWER(s.locatie) LIKE LOWER(CONCAT('%', :location, '%')))")
     List<Service> searchServices(@Param("keyword") String keyword, @Param("location") String location);
 
     @Query("SELECT s FROM Service s WHERE s.provider.userid = :userId")

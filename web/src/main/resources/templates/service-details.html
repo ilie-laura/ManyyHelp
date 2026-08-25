@@ -334,34 +334,34 @@
 
                 <hr class="my-4">
 
-                <!-- Formular Adăugare Recenzie Client -->
-                <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-heart-fill text-info me-2"></i>Adaugă o recenzie</h6>
-                <form th:action="@{/add-review}" method="post" class="bg-light p-3 rounded-3 border">
-                    <input type="hidden" name="serviceId" th:value="${service.serviceid}" />
-                    <input type="hidden" name="providerId" th:value="${oferitor != null and oferitor.providerid != null ? oferitor.providerid : (service != null and service.providerId != null ? service.providerId : 0)}" />
+<!--                &lt;!&ndash; Formular Adăugare Recenzie Client &ndash;&gt;-->
+<!--                <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-heart-fill text-info me-2"></i>Adaugă o recenzie</h6>-->
+<!--                <form th:action="@{/add-review}" method="post" class="bg-light p-3 rounded-3 border">-->
+<!--                    <input type="hidden" name="serviceId" th:value="${service.serviceid}" />-->
+<!--                    <input type="hidden" name="providerId" th:value="${oferitor != null and oferitor.providerid != null ? oferitor.providerid : (service != null and service.providerId != null ? service.providerId : 0)}" />-->
 
-                    <div class="mb-3">
-                        <label for="ratingSelect" class="form-label small fw-bold">Nota acordată</label>
-                        <select id="ratingSelect" name="rating" class="form-select form-select-sm shadow-none" required style="max-width: 200px;">
-                            <option value="5">5 ★★★★★ (Excelent)</option>
-                            <option value="4">4 ★★★★☆ (Foarte bun)</option>
-                            <option value="3">3 ★★★☆☆ (Mediu)</option>
-                            <option value="2">2 ★★☆☆☆ (Slab)</option>
-                            <option value="1">1 ★☆☆☆☆ (Foarte slab)</option>
-                        </select>
-                    </div>
+<!--                    <div class="mb-3">-->
+<!--                        <label for="ratingSelect" class="form-label small fw-bold">Nota acordată</label>-->
+<!--                        <select id="ratingSelect" name="rating" class="form-select form-select-sm shadow-none" required style="max-width: 200px;">-->
+<!--                            <option value="5">5 ★★★★★ (Excelent)</option>-->
+<!--                            <option value="4">4 ★★★★☆ (Foarte bun)</option>-->
+<!--                            <option value="3">3 ★★★☆☆ (Mediu)</option>-->
+<!--                            <option value="2">2 ★★☆☆☆ (Slab)</option>-->
+<!--                            <option value="1">1 ★☆☆☆☆ (Foarte slab)</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
 
-                    <div class="mb-3">
-                        <label for="commentArea" class="form-label small fw-bold">Comentariu</label>
-                        <textarea id="commentArea" name="comment" class="form-control form-control-sm shadow-none" rows="3" placeholder="Scrie părerea ta despre serviciile oferite..." required></textarea>
-                    </div>
+<!--                    <div class="mb-3">-->
+<!--                        <label for="commentArea" class="form-label small fw-bold">Comentariu</label>-->
+<!--                        <textarea id="commentArea" name="comment" class="form-control form-control-sm shadow-none" rows="3" placeholder="Scrie părerea ta despre serviciile oferite..." required></textarea>-->
+<!--                    </div>-->
 
-                    <button type="submit" class="btn btn-sm btn-info text-white fw-bold px-4 rounded-pill">
-                        <i class="bi bi-send-fill me-1"></i> Trimite recenzia
-                    </button>
-                </form>
-            </div>
-        </div>
+<!--                    <button type="submit" class="btn btn-sm btn-info text-white fw-bold px-4 rounded-pill">-->
+<!--                        <i class="bi bi-send-fill me-1"></i> Trimite recenzia-->
+<!--                    </button>-->
+<!--                </form>-->
+          </div>
+       </div>
 
         <!-- Sidebar Programare & Chat -->
         <div class="col-lg-4">

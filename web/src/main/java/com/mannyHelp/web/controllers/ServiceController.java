@@ -33,7 +33,7 @@ public class ServiceController {
         this.oferitorServiciiService = oferitorServiciiService;
         this.recenzieService = recenzieService;
     }
-    @GetMapping({ "/browse-services"})
+    @GetMapping({ "/browser-services"})
     public String browseServices(@RequestParam(required = false) String keyword,
                                  @RequestParam(required = false) String location,
                                  @RequestParam(required = false) String category,
@@ -57,7 +57,7 @@ public class ServiceController {
         model.addAttribute("latestReviews", latestReviews);
         model.addAttribute("loggedUser", loggedUser);
 
-        return "mainPage";
+        return "browser-services";
     }
     @GetMapping("/service/{id}")
     public String getServiceDetails(@PathVariable("id") int serviceId,
