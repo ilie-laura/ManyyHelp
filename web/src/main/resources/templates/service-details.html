@@ -174,7 +174,7 @@
                     </ul>
                 </div>
 
-                <!-- 2. ICONIȚĂ PROGRAMĂRI -->
+
                 <a th:if="${loggedUser != null}"
                    th:href="@{/users/{id}(id=${loggedUser.userid})}"
                    class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
@@ -390,9 +390,14 @@
                         <textarea id="detaliiSpecifice" name="detaliiSpecifice" class="form-control form-control-sm shadow-none" rows="2" placeholder="Detalii utile pentru prestator..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-info text-white w-100 fw-bold py-2 rounded-3">
+                    <button th:if="${loggedUser != null}" type="submit" class="btn btn-info text-white w-100 fw-bold py-2 rounded-3">
                         <i class="bi bi-calendar-check me-1"></i> Programează Acum
                     </button>
+
+
+                    <a th:if="${loggedUser == null}" th:href="@{/login}" class="btn btn-outline-info w-100 fw-bold py-2 rounded-3 text-center d-block">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Autentifică-te pentru a programa
+                    </a>
                 </form>
 
                 <hr class="my-3">

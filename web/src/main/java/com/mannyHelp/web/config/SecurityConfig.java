@@ -1,28 +1,43 @@
-package com.mannyHelp.web.config;
+package com.mannyHelp.web.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/login", "/css/**", "/js/**").permitAll() // Pagini publice
-                        .anyRequest().authenticated() // Orice altă pagină necesită login
+
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
+
+
+                        .requestMatchers("/", "/mainPage", "/browse-services", "/users-list", "/service/**", "/providers/**").permitAll()
+                        .requestMatchers("/login", "/register").permitAll()
+
+
+                        .requestMatchers("/book-service", "/programari/**", "/booking/**").authenticated()
+                        .requestMatchers("/chat/**", "/api/chat/**").authenticated()
+                        .requestMatchers("/services/new", "/services/edit/**", "/users/edit/**").authenticated()
+                        .requestMatchers("/add-review", "/reviews/**").authenticated()
+
+
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // Pagina ta personalizată de login
-                        .defaultSuccessUrl("/mainPage", true) // Unde redirecționează după login reușit
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/mainPage", true)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutSuccessUrl("/mainPage")
                         .permitAll()
                 );
 
