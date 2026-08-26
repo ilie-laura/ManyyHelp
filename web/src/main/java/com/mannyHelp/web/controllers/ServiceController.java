@@ -107,7 +107,7 @@ public class ServiceController {
 
 
         if (!loggedUser.isUserOrProvider()) {
-            return "redirect:/browse-services";
+            return "redirect:/browser-services";
         }
 
 
@@ -126,13 +126,13 @@ public class ServiceController {
         UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
 
         if (!loggedUser.isUserOrProvider()) {
-            return "redirect:/browse-services";
+            return "redirect:/browser-services";
         }
 
         serviceDto.setProviderId(loggedUser.getUserid());
         servicesService.saveService(serviceDto);
 
-        return "redirect:/browse-services?success";
+        return "redirect:/browser-services?success";
     }
     @GetMapping("/providers/{id}/services")
     public String viewProviderServices(@PathVariable("id") Long providerUserId, Model model) {

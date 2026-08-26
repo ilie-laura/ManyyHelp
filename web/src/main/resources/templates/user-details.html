@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- META TAGS CSRF NECESARE PENTRU FUNCTIONAREA FETCH POST -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}"/>
+
     <title th:text="${user != null ? user.nume + ' ' + (user.prenume != null ? user.prenume : '') + ' - Profil Trustlist' : 'Profil Utilizator - Trustlist'}">Profil Utilizator - Trustlist</title>
 
     <!-- Bootstrap 5, Icons & Fonts -->
@@ -158,14 +162,14 @@
         </a>
 
         <!-- Buton Meniu Mobil -->
-        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto align-items-lg-center py-2 py-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link fw-semibold px-lg-3 text-secondary" th:href="@{/browse-services}">
+                    <a class="nav-link fw-semibold px-lg-3 text-secondary" th:href="@{/browser-services}">
                         <i class="bi bi-search me-1 text-info"></i> Caută servicii
                     </a>
                 </li>
@@ -196,7 +200,7 @@
                     Devino prestator
                 </a>
 
-                <!-- 1. ICONIȚĂ CHAT CU DROPDOWN -->
+                <!-- 1. ICONIȚĂ CHAT CU DROPDOWN LISTA DE CONVERSAȚII -->
                 <div th:if="${loggedUser != null}" class="dropdown">
                     <button class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
                             type="button"
@@ -213,6 +217,7 @@
                               th:text="${unreadChatCount > 99 ? '99+' : unreadChatCount}">1</span>
                     </button>
 
+                    <!-- Lista partenerilor de conversație -->
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2"
                         style="width: 320px; max-height: 400px; overflow-y: auto;"
                         id="navbarConversationsList">
@@ -268,7 +273,6 @@
                                 <i class="bi bi-person me-2 text-secondary"></i> Profilul meu
                             </a>
                         </li>
-
                         <li>
                             <a class="dropdown-item rounded-2 py-2 small" th:href="@{/users/edit/{id}(id=${loggedUser.userid})}">
                                 <i class="bi bi-gear me-2 text-secondary"></i> Setări cont
@@ -761,22 +765,45 @@
         const input = document.getElementById("popupMsgInput");
         const content = input.value.trim();
 
-        if (!content || !receiverId || receiverId === "0") return;
+        if (!content || !receiverId || receiverId === "0") {
+            console.warn("Nu este selectat niciun destinatar valid (receiverId=" + receiverId + ")");
+            return;
+        }
+
+        // Preluăm token-ul CSRF din meta tag-uri
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
 
         const formData = new URLSearchParams();
         formData.append("receiverId", receiverId);
         formData.append("content", content);
 
+        const headers = {
+            "Content-Type": "application/x-www-form-urlencoded"
+        };
+
+        if (csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+
         fetch("/api/chat/send", {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: headers,
             body: formData.toString()
-        }).then(res => {
-            if (res.ok) {
-                input.value = "";
-                loadPopupMessages();
-            }
-        });
+        })
+            .then(async res => {
+                if (res.ok) {
+                    input.value = "";
+                    loadPopupMessages();
+                } else {
+                    const errorText = await res.text();
+                    console.error("Eroare la trimitere mesaj (Status " + res.status + "):", errorText);
+                    alert("Mesajul nu a putut fi trimis (Eroare " + res.status + "). Verifică dacă ești autentificat.");
+                }
+            })
+            .catch(err => {
+                console.error("Eroare rețea/Fetch:", err);
+            });
     }
 
     function loadNavbarConversations() {
@@ -827,11 +854,14 @@
         if (dropdownEl) {
             const bsDropdown = bootstrap.Dropdown.getInstance(dropdownEl);
             if (bsDropdown) bsDropdown.hide();
+
+            const badge = dropdownEl.querySelector('.badge');
+            if (badge) badge.style.display = 'none';
         }
 
         toggleChatPopup(partnerId, partnerName);
     }
-    // Verifică periodic dacă au apărut mesaje noi și actualizează iconița din Navbar
+
     function checkLiveUnreadCount() {
         fetch('/api/chat/unread-count')
             .then(res => res.json())

@@ -63,6 +63,7 @@ public class ChatRestController {
                     .senderId(sender)
                     .receiverId(receiver)
                     .content(content.trim())
+                    .isRead(false)
                     .sentAt(LocalDateTime.now())
                     .build();
             chatMessageRepository.save(message);

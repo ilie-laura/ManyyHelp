@@ -4,6 +4,8 @@ import com.mannyHelp.web.dto.ProgramareDto;
 import com.mannyHelp.web.dto.ServiceDto;
 import com.mannyHelp.web.dto.UsersDto;
 import com.mannyHelp.web.models.Recenzie;
+import com.mannyHelp.web.models.Users;
+import com.mannyHelp.web.repository.ChatMessageRepository;
 import com.mannyHelp.web.service.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -21,14 +23,16 @@ public class UsersController {
     private final ProgramareService programareService;
     private final RecenzieService recenzieService;
     private final ServiceService serviceService;
+    private final ChatMessageRepository chatMessageRepository;
 
     public UsersController(UsersService usersService,
                            ProgramareService programareService,
-                           RecenzieService recenzieService, ServiceService serviceService) {
+                           RecenzieService recenzieService, ServiceService serviceService, ChatMessageRepository chatMessageRepository) {
         this.usersService = usersService;
         this.programareService = programareService;
         this.recenzieService = recenzieService;
         this.serviceService = serviceService;
+        this.chatMessageRepository = chatMessageRepository;
     }
 
     @GetMapping("/mainPage")
@@ -60,19 +64,24 @@ public class UsersController {
         List<UsersDto> usersList = usersService.findAllUsers();
         model.addAttribute("users", usersList);
         return "users-list";
-    }
-
-    @GetMapping("/users/{id}")
+    }@GetMapping("/users/{id}")
     public String userDetails(@PathVariable("id") Long userId,
-                              @AuthenticationPrincipal CustomUserDetails customUser,
+                              Principal principal, // <-- Folosim direct Principal pentru compatibilitate 100%
                               @RequestParam(value = "reviewLimit", defaultValue = "5") Integer reviewLimit,
                               Model model) {
 
         UsersDto user = usersService.findUserById(userId);
 
         UsersDto loggedUser = null;
-        if (customUser != null) {
-            loggedUser = usersService.findUserByUsername(customUser.getUsername());
+        Long unreadChatCount = 0L;
+        Long lastChatPartnerId = null;
+
+        if (principal != null) {
+            loggedUser = usersService.findUserByUsername(principal.getName());
+            if (loggedUser != null) {
+                unreadChatCount = chatMessageRepository.countUnreadMessagesByUserId(loggedUser.getUserid());
+                lastChatPartnerId = chatMessageRepository.findLastChatPartnerUserId(loggedUser.getUserid());
+            }
         }
 
         List<ProgramareDto> programari;
@@ -80,7 +89,7 @@ public class UsersController {
         List<Recenzie> providerReceivedReviews = null;
         double providerAverageRating = 0.0;
 
-        if (Boolean.TRUE.equals(user.getUserOrProvider())) {
+        if (user != null && Boolean.TRUE.equals(user.getUserOrProvider())) {
             // DACĂ ESTE PROVIDER:
             programari = programareService.getProgramariByProviderUserId(userId);
             providerReceivedReviews = recenzieService.getRecenziiByProvider(userId);
@@ -94,7 +103,9 @@ public class UsersController {
         }
 
         model.addAttribute("user", user);
-        model.addAttribute("loggedUser", loggedUser);
+        model.addAttribute("loggedUser", loggedUser); // <-- Acum va fi populat corect!
+        model.addAttribute("unreadChatCount", unreadChatCount);
+        model.addAttribute("lastChatPartnerId", (loggedUser != null && !loggedUser.getUserid().equals(userId)) ? userId : lastChatPartnerId);
         model.addAttribute("programari", programari);
         model.addAttribute("userReviews", userReviews);
         model.addAttribute("providerReviews", providerReceivedReviews);

@@ -59,7 +59,7 @@ public class ProgramareServiceImpl implements ProgramareService {
 
     @Override
     public void createProgramare(Long userId, int serviceId, Long providerId, LocalDateTime dataProgramare) {
-
+        this.createProgramare(userId, serviceId, providerId, dataProgramare, null);
     }
 
     @Override

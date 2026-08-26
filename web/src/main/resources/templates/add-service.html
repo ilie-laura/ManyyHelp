@@ -30,10 +30,13 @@
                             <label class="form-label">Categorie</label>
                             <select th:field="*{categorie}" class="form-select" required>
                                 <option value="">Alege o categorie...</option>
-                                <option value="Instalații Sanitare">Instalații Sanitare</option>
-                                <option value="Electrice">Electrice</option>
-                                <option value="Curățenie">Curățenie</option>
-                                <option value="Construcții">Construcții</option>
+                                <option value="">Toate categoriile</option>
+                                <option value="instalatii" >Instalații</option>
+                                <option value="electricitate" >Electricitate</option>
+                                <option value="curatenie" >Curățenie</option>
+                                <option value="constructii" >Construcții & Renovări</option>
+                                <option value="auto" >Auto & Tractări</option>
+                                <option value="it" >IT & Calculatoare</option>
                             </select>
                         </div>
                     </div>
@@ -50,7 +53,7 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-info text-white rounded-pill px-4">Publică Serviciul</button>
-                        <a th:href="@{/browse-services}" class="btn btn-outline-secondary rounded-pill px-4">Anulează</a>
+                        <a th:href="@{/browser-services}" class="btn btn-outline-secondary rounded-pill px-4">Anulează</a>
                     </div>
                 </form>
             </div>
