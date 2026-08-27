@@ -14,7 +14,9 @@ public interface RecenzieRepository extends JpaRepository<Recenzie, Integer> {
 
     List<Recenzie> findByProviderProviderid(Long providerId);
     List<Recenzie> findByProviderUserUserid(Long userId);
-
+    List<Recenzie> findByServiceServiceidOrderByCreatedAtDesc(int serviceId);
+    @Query("SELECT AVG(r.rating) FROM Recenzie r WHERE r.service.serviceid = :serviceId")
+    Double getAverageRatingByServiceId(@Param("serviceId") int serviceId);
     @Query(value = "SELECT * FROM recenzie WHERE userid = :userId ORDER BY created_at DESC LIMIT :limit", nativeQuery = true)
     List<Recenzie> findByUserUseridOrderByCreatedAtDesc(@Param("userId") Long userId, @Param("limit") int limit);
     

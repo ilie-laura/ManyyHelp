@@ -22,12 +22,15 @@ public class Recenzie{
 
     @ManyToOne
     @JoinColumn(name = "userid")
-    private Users user;              // cine a scris recenzia
+    private Users user;
 
     @ManyToOne
     @JoinColumn(name = "providerid")
-    private OferitorServicii provider;      // cui i se adresează recenzia
+    private OferitorServicii provider;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "serviceid")
+    private Service service;
 
     private int rating;
     private String comment;

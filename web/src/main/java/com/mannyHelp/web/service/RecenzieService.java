@@ -1,20 +1,20 @@
 package com.mannyHelp.web.service;
 
 import com.mannyHelp.web.models.Recenzie;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 
-@Service
 public interface RecenzieService {
-    void addRecenzie(Long userId, Long providerId, int rating, String comment);
+
+    void addRecenzie(Long userId, Long providerId, Integer serviceId, int rating, String comment);
+
+
+    List<Recenzie> getRecenziiByService(int serviceId);
+    double getAverageRatingByService(int serviceId);
+
+
     List<Recenzie> getRecenziiByProvider(Long providerId);
-    void addProviderResponse(Integer reviewId, String responseText);
     double getAverageRatingByProvider(Long providerId);
-    List<Recenzie> getRecentPlatformReviews(int limit);
     List<Recenzie> getRecenziiByUserId(Long userId, Integer limit);
-
-
+    List<Recenzie> getRecentPlatformReviews(int limit);
+    void addProviderResponse(Integer reviewId, String responseText);
 }

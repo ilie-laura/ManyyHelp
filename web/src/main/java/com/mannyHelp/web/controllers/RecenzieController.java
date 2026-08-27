@@ -1,16 +1,16 @@
 package com.mannyHelp.web.controllers;
 
 import com.mannyHelp.web.dto.UsersDto;
-import com.mannyHelp.web.service.CustomUserDetails;
 import com.mannyHelp.web.service.ProgramareService;
 import com.mannyHelp.web.service.RecenzieService;
 import com.mannyHelp.web.service.UsersService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.security.Principal;
 
 @Controller
 public class RecenzieController {
@@ -27,26 +27,26 @@ public class RecenzieController {
         this.programareService = programareService;
     }
 
-    // --- METODA NOUĂ: Feedback & Rating după finalizarea programării ---
     @PostMapping("/booking/review")
     public String submitReview(@RequestParam("userId") Long userId,
                                @RequestParam("serviceId") Long serviceId,
                                @RequestParam("providerId") Long providerId,
                                @RequestParam("rating") int rating,
                                @RequestParam("comment") String comment,
-                               @AuthenticationPrincipal CustomUserDetails customUser,
+                               Principal principal,
                                RedirectAttributes redirectAttributes) {
 
-        if (customUser == null) {
+        if (principal == null) {
             return "redirect:/login";
         }
 
-        UsersDto loggedUser = usersService.findUserByUsername(customUser.getUsername());
+        UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
+        if (loggedUser == null) {
+            return "redirect:/login";
+        }
 
-        // 1. Salvează recenzia folosind serviciul existent
-        recenzieService.addRecenzie(loggedUser.getUserid(), providerId, rating, comment);
-
-        // 2. Marchează programarea ca având review trimis (reviewTrimis = true)
+        // Trimitem toți cei 5 parametri (inclusiv serviceId convertit în Integer)
+        recenzieService.addRecenzie(loggedUser.getUserid(), providerId, serviceId.intValue(), rating, comment);
         programareService.markReviewAsSubmitted(userId, serviceId, providerId);
 
         redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Mulțumim pentru feedback!");
@@ -58,15 +58,20 @@ public class RecenzieController {
                             @RequestParam("serviceId") Integer serviceId,
                             @RequestParam("rating") int rating,
                             @RequestParam("comment") String comment,
-                            @AuthenticationPrincipal CustomUserDetails customUser,
+                            Principal principal,
                             RedirectAttributes redirectAttributes) {
 
-        if (customUser == null) {
+        if (principal == null) {
             return "redirect:/login";
         }
 
-        UsersDto loggedUser = usersService.findUserByUsername(customUser.getUsername());
-        recenzieService.addRecenzie(loggedUser.getUserid(), providerId, rating, comment);
+        UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
+        if (loggedUser == null) {
+            return "redirect:/login";
+        }
+
+        // Trimitem toți cei 5 parametri (inclusiv serviceId)
+        recenzieService.addRecenzie(loggedUser.getUserid(), providerId, serviceId, rating, comment);
         redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Recenzia a fost adăugată cu succes!");
 
         return "redirect:/service/" + serviceId;
@@ -75,17 +80,26 @@ public class RecenzieController {
     @PostMapping("/reviews/{id}/respond")
     public String respondToReview(@PathVariable("id") Integer reviewId,
                                   @RequestParam("providerResponse") String providerResponse,
-                                  @RequestParam("serviceId") Integer serviceId,
-                                  @AuthenticationPrincipal CustomUserDetails customUser,
+                                  @RequestParam(value = "serviceId", required = false) Integer serviceId,
+                                  Principal principal,
                                   RedirectAttributes redirectAttributes) {
 
-        if (customUser == null) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
+        if (loggedUser == null) {
             return "redirect:/login";
         }
 
         recenzieService.addProviderResponse(reviewId, providerResponse);
 
         redirectAttributes.addFlashAttribute("reviewSuccessMessage", "Răspunsul tău a fost adăugat!");
-        return "redirect:/service/" + serviceId;
+
+        if (serviceId != null) {
+            return "redirect:/service/" + serviceId;
+        }
+        return "redirect:/users/" + loggedUser.getUserid();
     }
 }

@@ -58,41 +58,28 @@ public class ServiceController {
         model.addAttribute("loggedUser", loggedUser);
 
         return "browser-services";
-    }
-    @GetMapping("/service/{id}")
+    }@GetMapping("/service/{id}")
     public String getServiceDetails(@PathVariable("id") int serviceId,
                                     Model model,
-                                    java.security.Principal principal) { // 1. Adaugă Principal
+                                    Principal principal) {
 
         ServiceDto serviceDto = servicesService.findServiceById(serviceId);
         OferitorServiciiDto oferitorDto = oferitorServiciiService.findByServiceId(serviceId);
 
-        // 2. Preluăm utilizatorul logat
         UsersDto loggedUser = null;
         if (principal != null) {
             loggedUser = usersService.findUserByUsername(principal.getName());
         }
 
-        List<Recenzie> reviews = null;
-        double averageRating = 0.0;
-
-        Long targetProviderId = null;
-        if (oferitorDto != null && oferitorDto.getProviderid() != null) {
-            targetProviderId = oferitorDto.getProviderid();
-        } else if (serviceDto != null) {
-            targetProviderId = serviceDto.getProviderId();
-        }
-
-        if (targetProviderId != null) {
-            reviews = recenzieService.getRecenziiByProvider(targetProviderId);
-            averageRating = recenzieService.getAverageRatingByProvider(targetProviderId);
-        }
+      
+        List<Recenzie> reviews = recenzieService.getRecenziiByService(serviceId);
+        double averageRating = recenzieService.getAverageRatingByService(serviceId);
 
         model.addAttribute("service", serviceDto);
         model.addAttribute("oferitor", oferitorDto);
         model.addAttribute("reviews", reviews);
         model.addAttribute("averageRating", averageRating);
-        model.addAttribute("loggedUser", loggedUser); // 3. Adaugă loggedUser în Model!
+        model.addAttribute("loggedUser", loggedUser);
 
         return "service-details";
     }

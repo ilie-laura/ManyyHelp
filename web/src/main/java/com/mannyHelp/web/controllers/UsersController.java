@@ -103,7 +103,7 @@ public class UsersController {
         }
 
         model.addAttribute("user", user);
-        model.addAttribute("loggedUser", loggedUser); // <-- Acum va fi populat corect!
+        model.addAttribute("loggedUser", loggedUser);
         model.addAttribute("unreadChatCount", unreadChatCount);
         model.addAttribute("lastChatPartnerId", (loggedUser != null && !loggedUser.getUserid().equals(userId)) ? userId : lastChatPartnerId);
         model.addAttribute("programari", programari);
