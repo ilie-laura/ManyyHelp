@@ -5,10 +5,11 @@ import java.util.List;
 
 public interface ServiceService {
     List<ServiceDto> findAllServices();
-    List<ServiceDto> searchServices(String keyword,String location);
+    List<ServiceDto> searchServices(String keyword, String location);
     ServiceDto findServiceById(int id);
     List<ServiceDto> findServicesByProviderUserId(Long userId);
     void saveService(ServiceDto serviceDto);
-
+    void updateService(ServiceDto serviceDto);
+    void deleteService(int serviceId);
     List<ServiceDto> searchAndFilterServices(String keyword, String location, String category, String sortBy);
 }

@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
-public
-class ServiceServiceImpl implements ServiceService {
+public class ServiceServiceImpl implements ServiceService {
 
     private final ServiceRepository serviceRepository;
     private final UsersRepository usersRepository;
@@ -64,6 +63,7 @@ class ServiceServiceImpl implements ServiceService {
                 .photourl(service.getPhotourl())
                 .locatie(service.getLocatie())
                 .createdon(service.getCreatedon())
+                .providerId(service.getProvider() != null ? service.getProvider().getUserid() : null)
                 .build();
     }
     @Override
@@ -135,7 +135,27 @@ class ServiceServiceImpl implements ServiceService {
 
         return dtoList;
     }
+    @Override
+    public void updateService(ServiceDto serviceDto) {
+        Service service = serviceRepository.findById(serviceDto.getServiceid())
+                .orElseThrow(() -> new RuntimeException("Serviciul nu a fost găsit!"));
 
+        service.setNumeServiciu(serviceDto.getNumeServiciu());
+        service.setPret(serviceDto.getPret());
+        service.setPhotourl(serviceDto.getPhotourl());
+        service.setLocatie(serviceDto.getLocatie());
+        service.setCategorie(serviceDto.getCategorie());
+
+        serviceRepository.save(service);
+    }
+
+    @Override
+    public void deleteService(int serviceId) {
+        if (!serviceRepository.existsById(serviceId)) {
+            throw new RuntimeException("Serviciul nu există!");
+        }
+        serviceRepository.deleteById(serviceId);
+    }
 
 
 }

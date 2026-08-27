@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- META TAGS CSRF NECESARE PENTRU FUNCTIONAREA FETCH POST -->
     <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
     <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}"/>
 
@@ -16,15 +15,14 @@
     <link rel="stylesheet" th:href="@{/mainPage.css}">
 
     <style>
-        .navbar.sticky-top {
-            z-index: 1050;
-        }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .navbar.sticky-top { z-index: 1050; }
 
         .profile-header-dark {
             background: radial-gradient(circle at top right, #0f4c5c 0%, #08242f 100%);
             color: #ffffff;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 0;
         }
         .profile-header-dark .badge-verified-dark {
             background: rgba(14, 165, 233, 0.15);
@@ -62,12 +60,12 @@
             background-color: #f8fafc;
             color: #475569;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
         .table-custom td {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             vertical-align: middle;
         }
 
@@ -152,16 +150,14 @@
 </head>
 <body>
 
-<!-- 1. NAVBAR CU CHAT DROPDOWN -->
-<nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2" style="z-index: 1050;">
+<!-- 1. NAVBAR -->
+<nav class="navbar navbar-expand-lg border-bottom sticky-top bg-white py-2">
     <div class="container">
-        <!-- Logo -->
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2 text-dark" th:href="@{/mainPage}">
             <i class="bi bi-stars text-info fs-4"></i>
             <span style="letter-spacing: -0.5px;">Trustlist</span>
         </a>
 
-        <!-- Buton Meniu Mobil -->
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -186,30 +182,27 @@
             </ul>
 
             <div class="d-flex flex-wrap align-items-center gap-2 pt-2 pt-lg-0 border-top border-lg-0">
-                <!-- Buton Adaugă Serviciu -->
                 <a th:if="${loggedUser != null and loggedUser.userOrProvider}"
                    th:href="@{/services/new}"
                    class="btn btn-sm btn-outline-info rounded-pill px-3 fw-bold align-items-center gap-1">
                     <i class="bi bi-plus-lg"></i> Adaugă Serviciu
                 </a>
 
-                <!-- Buton Devino Prestator -->
                 <a th:if="${loggedUser != null and !loggedUser.userOrProvider}"
                    th:href="@{/users/edit/{id}(id=${loggedUser.userid})}"
                    class="btn btn-sm btn-light text-secondary rounded-pill px-3 fw-semibold border">
                     Devino prestator
                 </a>
 
-                <!-- 1. ICONIȚĂ CHAT CU DROPDOWN LISTA DE CONVERSAȚII -->
+                <!-- ICONIȚĂ CHAT -->
                 <div th:if="${loggedUser != null}" class="dropdown">
                     <button class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
                             type="button"
                             id="chatMenuBtn"
                             data-bs-toggle="dropdown"
-                            data-bs-display="static"
                             aria-expanded="false"
                             onclick="loadNavbarConversations()"
-                            title="Mesaje & Conversații">
+                            title="Mesaje">
                         <i class="bi bi-chat-dots fs-5"></i>
                         <span th:if="${unreadChatCount != null and unreadChatCount > 0}"
                               class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white p-1"
@@ -217,7 +210,6 @@
                               th:text="${unreadChatCount > 99 ? '99+' : unreadChatCount}">1</span>
                     </button>
 
-                    <!-- Lista partenerilor de conversație -->
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2"
                         style="width: 320px; max-height: 400px; overflow-y: auto;"
                         id="navbarConversationsList">
@@ -225,13 +217,11 @@
                             <span>Mesaje Recente</span>
                             <i class="bi bi-chat-left-text text-info"></i>
                         </li>
-                        <li class="text-center py-3 text-muted small">
-                            Se încarcă discuțiile...
-                        </li>
+                        <li class="text-center py-3 text-muted small">Se încarcă discuțiile...</li>
                     </ul>
                 </div>
 
-                <!-- 2. ICONIȚĂ PROGRAMĂRI -->
+                <!-- ICONIȚĂ PROGRAMĂRI -->
                 <a th:if="${loggedUser != null}"
                    th:href="@{/users/{id}(id=${loggedUser.userid})}"
                    class="btn btn-light rounded-circle position-relative p-2 border-0 text-secondary"
@@ -239,12 +229,11 @@
                     <i class="bi bi-calendar-event fs-6"></i>
                 </a>
 
-                <!-- Avatar Dropdown -->
+                <!-- AVATAR PROFILE -->
                 <div th:if="${loggedUser != null}" class="dropdown">
                     <button class="btn p-0 border-0 d-flex align-items-center gap-2 shadow-none"
                             type="button"
                             data-bs-toggle="dropdown"
-                            data-bs-display="static"
                             aria-expanded="false">
 
                         <img th:if="${loggedUser.photourl != null and !#strings.isEmpty(loggedUser.photourl)}"
@@ -261,9 +250,9 @@
                         <i class="bi bi-chevron-down text-muted small"></i>
                     </button>
 
-                    <ul class="dropdown-menu dropdown-menu-start dropdown-menu-lg-end shadow border-0 rounded-4 mt-2 p-2" style="min-width: 230px;">
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 p-2" style="min-width: 230px;">
                         <li class="px-3 py-2 border-bottom mb-1 bg-light rounded-3">
-                            <span class="d-block fw-bold text-dark small" th:text="${loggedUser.nume + ' ' + (loggedUser.prenume != null ? loggedUser.prenume : '')}">Nume User</span>
+                            <span class="d-block fw-bold text-dark small" th:text="${loggedUser.nume + ' ' + (loggedUser.prenume != null ? loggedUser.prenume : '')}">Nume</span>
                             <span class="d-block text-muted" style="font-size: 0.75rem;" th:text="'@' + ${loggedUser.username}">@user</span>
                             <span class="badge bg-info-subtle text-info mt-1" style="font-size: 0.68rem;" th:text="${loggedUser.userOrProvider ? 'Furnizor de servicii' : 'Client Standard'}">Rol</span>
                         </li>
@@ -289,7 +278,6 @@
                     </ul>
                 </div>
 
-                <!-- Butoane Login/Înregistrare -->
                 <div th:if="${loggedUser == null}" class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
                     <a th:href="@{/login}" class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold text-secondary">Login</a>
                     <a th:href="@{/register}" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold shadow-sm">Înregistrare</a>
@@ -300,7 +288,7 @@
 </nav>
 
 <!-- 2. HEADER PROFIL -->
-<section class="py-5 profile-header-dark">
+<section class="profile-header-dark">
     <div class="container">
         <div class="row align-items-center g-3">
             <div class="col-auto">
@@ -313,7 +301,7 @@
                 <div th:unless="${user != null and user.photourl != null and !#strings.isEmpty(user.photourl)}"
                      class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
                      style="width: 95px; height: 95px; font-size: 2.3rem;">
-                    <span th:text="${user != null and user.username != null ? #strings.substring(user.username, 0, 1) : 'U'}">U</span>
+                    <span th:text="${user != null and user.username != null ? #strings.substring(user.username, 0, 1).toUpperCase() : 'U'}">U</span>
                 </div>
             </div>
 
@@ -321,8 +309,8 @@
                 <div class="badge-verified-dark mb-2">
                     <i class="bi bi-patch-check-fill"></i> Verified Trustlist Member
                 </div>
-                <h1 class="h2 fw-bold text-white mb-1" th:text="${user != null ? (user.nume + ' ' + (user.prenume != null ? user.prenume : '')) : 'Nume Utilizator'}">
-                    Alicia Bee
+                <h1 class="h2 fw-bold text-white mb-1" th:text="${user != null ? (user.nume + ' ' + (user.prenume != null ? user.prenume : '')) : 'Utilizator'}">
+                    Nume Utilizator
                 </h1>
                 <p class="text-light opacity-75 small mb-0">
                     <i class="bi bi-at"></i><span th:text="${user != null ? user.username : 'username'}">username</span>
@@ -333,15 +321,15 @@
     </div>
 </section>
 
-<!-- 3. CORP PRINCIPAL -->
+<!-- 3. ZONĂ CONȚINUT PRINCIPAL -->
 <section class="py-5">
     <div class="container">
         <div class="row g-4">
 
-            <!-- Stânga: Detalii & Tab-uri Interactive -->
+            <!-- COLOANA STÂNGA (8 / 12) -->
             <div class="col-lg-8">
 
-                <!-- Card 1: Sumar Date Profil -->
+                <!-- Card Informații Profil -->
                 <div class="dashboard-card p-4 mb-4">
                     <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
                         <h6 class="fw-bold mb-0 text-dark">
@@ -374,7 +362,7 @@
                     </div>
                 </div>
 
-                <!-- Card 2: Tab-uri (Programări & Recenzii) -->
+                <!-- Card Tab-uri Interactive -->
                 <div class="dashboard-card p-4 mb-4">
                     <ul class="nav nav-tabs nav-tabs-custom border-bottom mb-4" id="profileTabs" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -385,6 +373,15 @@
                                 <span class="badge bg-secondary-subtle text-secondary rounded-pill" th:text="${programari != null ? programari.size() : 0}">0</span>
                             </button>
                         </li>
+
+                        <li class="nav-item" role="presentation" th:if="${user != null and user.userOrProvider}">
+                            <button class="nav-link d-flex align-items-center gap-2" id="servicii-tab" data-bs-toggle="tab" data-bs-target="#servicii-pane" type="button" role="tab">
+                                <i class="bi bi-tools text-info"></i>
+                                <span>Servicii Oferite</span>
+                                <span class="badge bg-secondary-subtle text-secondary rounded-pill" th:text="${providerServices != null ? providerServices.size() : 0}">0</span>
+                            </button>
+                        </li>
+
                         <li class="nav-item" role="presentation">
                             <button class="nav-link d-flex align-items-center gap-2" id="recenzii-tab" data-bs-toggle="tab" data-bs-target="#recenzii-pane" type="button" role="tab">
                                 <i class="bi bi-star-fill text-warning"></i>
@@ -398,7 +395,7 @@
 
                     <div class="tab-content" id="profileTabsContent">
 
-                        <!-- PANE 1: TABEL PROGRAMĂRI -->
+                        <!-- TAB 1: PROGRAMĂRI -->
                         <div class="tab-pane fade show active" id="programari-pane" role="tabpanel">
                             <div th:if="${programari != null and !#lists.isEmpty(programari)}" class="table-responsive">
                                 <table class="table table-hover table-custom align-middle mb-0">
@@ -417,28 +414,22 @@
                                         <td>
                                             <div class="fw-semibold text-dark" th:text="${p.serviceNume != null ? p.serviceNume : '-'}">Reparații</div>
                                             <small class="text-muted d-block" th:if="${p.detaliiSpecifice != null and !#strings.isEmpty(p.detaliiSpecifice)}">
-                                                <i class="bi bi-chat-left-text me-1 text-info"></i><span th:text="${p.detaliiSpecifice}">Detalii lucrare</span>
+                                                <i class="bi bi-chat-left-text me-1 text-info"></i><span th:text="${p.detaliiSpecifice}">Detalii</span>
                                             </small>
                                         </td>
-
                                         <td th:if="${user != null and user.userOrProvider}" class="text-secondary" th:text="${p.userNume != null ? p.userNume : '-'}">Client</td>
                                         <td th:unless="${user != null and user.userOrProvider}" class="text-secondary" th:text="${p.providerNume != null ? p.providerNume : '-'}">Furnizor</td>
-
                                         <td>
                                             <i class="bi bi-clock me-1 text-muted"></i>
                                             <span th:text="${p.dataProgramare != null ? #temporals.format(p.dataProgramare, 'dd-MM-yyyy HH:mm') : '-'}">12-08-2026 14:00</span>
                                         </td>
-
                                         <td>
                                             <span class="badge rounded-pill px-2 py-1"
-                                                  th:classappend="${p.status == 'FINISHED' ? 'bg-success' : (p.status == 'APPROVED' ? 'bg-primary' : (p.status == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark'))}"
-                                                  th:text="${p.status != null ? p.status : 'PENDING'}">
-                                                PENDING
-                                            </span>
+                                                  th:classappend="${p.status == 'FINISHED' or p.status == 'COMPLETED' ? 'bg-success' : (p.status == 'APPROVED' ? 'bg-primary' : (p.status == 'CANCELLED' ? 'bg-danger' : 'bg-warning text-dark'))}"
+                                                  th:text="${p.status != null ? p.status : 'PENDING'}">PENDING</span>
                                         </td>
-
                                         <td>
-                                            <!-- Caz 1: Prestatorul își schimbă statusul -->
+                                            <!-- Provider status change -->
                                             <div th:if="${loggedUser != null and user != null and loggedUser.userid == user.userid and user.userOrProvider}">
                                                 <form th:action="@{/programari/status}" method="post" class="d-flex gap-1 align-items-center m-0">
                                                     <input type="hidden" name="userId" th:value="${p.userId}" />
@@ -451,76 +442,63 @@
                                                         <option value="FINISHED" th:selected="${p.status == 'FINISHED'}">FINISHED</option>
                                                         <option value="CANCELLED" th:selected="${p.status == 'CANCELLED'}">CANCELLED</option>
                                                     </select>
-                                                    <button type="submit" class="btn btn-sm btn-outline-info" title="Salvează">
-                                                        <i class="bi bi-check-lg"></i>
-                                                    </button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-info" title="Salvează"><i class="bi bi-check-lg"></i></button>
                                                 </form>
                                             </div>
 
-                                            <!-- Caz 2: Clientul lasă Feedback când statusul devine FINISHED -->
+                                            <!-- Client feedback modal -->
                                             <div th:if="${loggedUser != null and user != null and loggedUser.userid == user.userid and !user.userOrProvider}">
-                                                <div th:if="${p.status == 'FINISHED' and !p.reviewTrimis}">
+                                                <div th:if="${(p.status == 'FINISHED' or p.status == 'COMPLETED') and !p.reviewTrimis}">
                                                     <button class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm"
                                                             data-bs-toggle="modal"
                                                             th:data-bs-target="'#reviewModal-' + ${p.userId + '-' + p.serviceId + '-' + p.providerId}">
                                                         <i class="bi bi-star-fill me-1"></i> Lasă Feedback
                                                     </button>
                                                 </div>
-
                                                 <div th:if="${p.reviewTrimis}">
                                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
                                                         <i class="bi bi-check2-circle me-1"></i> Feedback Trimis
                                                     </span>
                                                 </div>
-
-                                                <div th:if="${p.status != 'FINISHED' and !p.reviewTrimis}">
+                                                <div th:if="${p.status != 'FINISHED' and p.status != 'COMPLETED' and !p.reviewTrimis}">
                                                     <span class="text-muted small fst-italic">În derulare...</span>
                                                 </div>
 
-                                                <!-- MODAL FEEDBACK -->
-                                                <div class="modal fade"
-                                                     th:id="'reviewModal-' + ${p.userId + '-' + p.serviceId + '-' + p.providerId}"
-                                                     tabindex="-1"
-                                                     aria-hidden="true">
+                                                <!-- Modal Feedback -->
+                                                <div class="modal fade" th:id="'reviewModal-' + ${p.userId + '-' + p.serviceId + '-' + p.providerId}" tabindex="-1" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered">
                                                         <div class="modal-content rounded-4 border-0 p-3 shadow">
                                                             <form th:action="@{/booking/review}" method="post">
                                                                 <div class="modal-header border-0 pb-0">
-                                                                    <h5 class="modal-title fw-bold text-dark">
-                                                                        <i class="bi bi-star-fill text-warning me-2"></i>Evaluează serviciul
-                                                                    </h5>
+                                                                    <h5 class="modal-title fw-bold text-dark"><i class="bi bi-star-fill text-warning me-2"></i>Evaluează serviciul</h5>
                                                                     <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
                                                                 </div>
-
                                                                 <div class="modal-body text-start">
                                                                     <p class="small text-muted mb-3">
                                                                         Cum a decurs lucrarea pentru <strong class="text-dark" th:text="${p.serviceNume}">Serviciu</strong> oferit de <strong class="text-info" th:text="${p.providerNume}">Prestator</strong>?
                                                                     </p>
-
                                                                     <input type="hidden" name="userId" th:value="${p.userId}" />
                                                                     <input type="hidden" name="serviceId" th:value="${p.serviceId}" />
                                                                     <input type="hidden" name="providerId" th:value="${p.providerId}" />
 
                                                                     <div class="mb-3">
-                                                                        <label class="form-label fw-semibold small text-dark">Notă acordată (1 - 5 stele):</label>
+                                                                        <label class="form-label fw-semibold small text-dark">Notă acordată:</label>
                                                                         <select name="rating" class="form-select rounded-3 shadow-none" required>
                                                                             <option value="5">★★★★★ (5 - Excelent)</option>
                                                                             <option value="4">★★★★☆ (4 - Foarte bun)</option>
-                                                                            <option value="3">★★★☆☆ (3 - Bun / Satisfăcător)</option>
-                                                                            <option value="2">★★☆☆☆ (2 - Sub așteptări)</option>
+                                                                            <option value="3">★★★☆☆ (3 - Mediu)</option>
+                                                                            <option value="2">★★☆☆☆ (2 - Slab)</option>
                                                                             <option value="1">★☆☆☆☆ (1 - Nemulțumit)</option>
                                                                         </select>
                                                                     </div>
-
                                                                     <div class="mb-3">
                                                                         <label class="form-label fw-semibold small text-dark">Părerea ta:</label>
                                                                         <textarea name="comment" rows="3" class="form-control rounded-3 shadow-none" placeholder="Scrie câteva detalii..." required></textarea>
                                                                     </div>
                                                                 </div>
-
                                                                 <div class="modal-footer border-0 pt-0">
                                                                     <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Anulează</button>
-                                                                    <button type="submit" class="btn btn-info text-white rounded-pill px-4 fw-bold shadow-sm">Trimite Recenzia</button>
+                                                                    <button type="submit" class="btn btn-info text-white rounded-pill px-4 fw-bold shadow-sm">Trimite</button>
                                                                 </div>
                                                             </form>
                                                         </div>
@@ -541,7 +519,72 @@
                             </div>
                         </div>
 
-                        <!-- PANE 2: RECENZII -->
+                        <!-- TAB 2: SERVICII OFERITE -->
+                        <div class="tab-pane fade" id="servicii-pane" role="tabpanel" th:if="${user != null and user.userOrProvider}">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="small text-muted" th:text="${(providerServices != null ? providerServices.size() : 0) + ' servicii active'}">0 servicii</span>
+                                <a th:if="${loggedUser != null and loggedUser.userid == user.userid}"
+                                   th:href="@{/services/new}"
+                                   class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold">
+                                    <i class="bi bi-plus-lg me-1"></i> Adaugă Serviciu
+                                </a>
+                            </div>
+
+                            <div th:if="${providerServices != null and !#lists.isEmpty(providerServices)}" class="row g-3">
+                                <div class="col-md-6" th:each="srv : ${providerServices}">
+                                    <div class="border rounded-4 p-3 bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+                                        <div>
+                                            <div class="d-flex gap-3 align-items-center mb-2">
+                                                <img th:if="${srv.photourl != null and !#strings.isEmpty(srv.photourl)}"
+                                                     th:src="${srv.photourl}"
+                                                     class="rounded-3 object-fit-cover"
+                                                     style="width: 65px; height: 65px;" alt="Service">
+                                                <div th:unless="${srv.photourl != null and !#strings.isEmpty(srv.photourl)}"
+                                                     class="rounded-3 bg-light border d-flex align-items-center justify-content-center text-secondary"
+                                                     style="width: 65px; height: 65px;">
+                                                    <i class="bi bi-tools fs-4"></i>
+                                                </div>
+
+                                                <div class="overflow-hidden">
+                                                    <h6 class="fw-bold text-dark mb-1 text-truncate" th:text="${srv.numeServiciu}">Nume</h6>
+                                                    <span class="badge bg-light text-secondary border small" th:text="${srv.categorie != null ? srv.categorie : 'General'}">Categorie</span>
+                                                    <small class="text-muted d-block mt-1"><i class="bi bi-geo-alt text-danger me-1"></i><span th:text="${srv.locatie}">Locație</span></small>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex align-items-center justify-content-between my-2 pt-2 border-top">
+                                                <span class="text-muted small">Tarif:</span>
+                                                <strong class="text-info fs-5" th:text="${srv.pret + ' RON'}">150 RON</strong>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex gap-2 pt-2 border-top mt-2">
+                                            <a th:href="@{/service/{id}(id=${srv.serviceid})}" class="btn btn-sm btn-outline-info rounded-pill flex-grow-1 fw-semibold">
+                                                <i class="bi bi-eye me-1"></i> Vezi
+                                            </a>
+
+                                            <th:block th:if="${loggedUser != null and loggedUser.userid == user.userid}">
+                                                <a th:href="@{/services/edit/{id}(id=${srv.serviceid})}" class="btn btn-sm btn-light border rounded-pill px-3 text-secondary fw-semibold" title="Editează">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form th:action="@{/services/delete/{id}(id=${srv.serviceid})}" method="post" class="m-0" onsubmit="return confirm('Sigur dorești să ștergi acest serviciu?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Șterge">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </th:block>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${providerServices == null or #lists.isEmpty(providerServices)}" class="text-center py-5 text-muted">
+                                <i class="bi bi-tools fs-1 d-block mb-2 text-secondary"></i>
+                                <p class="mb-0">Nu există servicii adăugate încă.</p>
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: RECENZII -->
                         <div class="tab-pane fade" id="recenzii-pane" role="tabpanel">
 
                             <!-- CAZUL 1: PROVIDER -->
@@ -558,42 +601,40 @@
                                 </div>
 
                                 <div th:if="${providerReviews != null and !#lists.isEmpty(providerReviews)}">
-                                    <div th:if="${providerReviews != null and !#lists.isEmpty(providerReviews)}">
-                                        <div th:each="rev : ${providerReviews}" class="border rounded-3 p-3 mb-3 bg-white shadow-sm">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="fw-bold text-dark" th:text="${rev.user != null ? (rev.user.nume + ' ' + (rev.user.prenume != null ? rev.user.prenume : '')) : 'Client Anonim'}">Client</span>
-                                                <span class="text-warning fw-semibold">
-                <i class="bi bi-star-fill"></i> <span th:text="${rev.rating}">5</span> / 5
-            </span>
-                                            </div>
-                                            <p class="text-secondary small mb-2" th:text="${rev.comment}">Comentariu client...</p>
-                                            <small class="text-muted d-block" style="font-size: 0.75rem;" th:if="${rev.createdAt != null}">
-                                                <i class="bi bi-clock me-1"></i><span th:text="${#temporals.format(rev.createdAt, 'dd-MM-yyyy HH:mm')}">14-08-2026</span>
-                                            </small>
+                                    <div th:each="rev : ${providerReviews}" class="border rounded-3 p-3 mb-3 bg-white shadow-sm">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-bold text-dark" th:text="${rev.user != null ? (rev.user.nume + ' ' + (rev.user.prenume != null ? rev.user.prenume : '')) : 'Client Anonim'}">Client</span>
+                                            <span class="text-warning fw-semibold">
+                                                <i class="bi bi-star-fill"></i> <span th:text="${rev.rating}">5</span> / 5
+                                            </span>
+                                        </div>
+                                        <p class="text-secondary small mb-2" th:text="${rev.comment}">Comentariu client...</p>
+                                        <small class="text-muted d-block" style="font-size: 0.75rem;" th:if="${rev.createdAt != null}">
+                                            <i class="bi bi-clock me-1"></i><span th:text="${#temporals.format(rev.createdAt, 'dd-MM-yyyy HH:mm')}">14-08-2026</span>
+                                        </small>
 
-                                            <!-- 1. Afișare răspuns existent -->
-                                            <div th:if="${rev.providerResponse != null and !#strings.isEmpty(rev.providerResponse)}"
-                                                 class="p-2 bg-light border-start border-3 border-info rounded mt-2">
-                                                <div class="fw-bold text-info small" style="font-size: 0.75rem;">
-                                                    <i class="bi bi-reply-fill me-1"></i> Răspunsul tău:
-                                                </div>
-                                                <p class="small text-dark mb-0" th:text="${rev.providerResponse}">Răspuns</p>
+                                        <!-- Răspuns existent -->
+                                        <div th:if="${rev.providerResponse != null and !#strings.isEmpty(rev.providerResponse)}"
+                                             class="p-2 bg-light border-start border-3 border-info rounded mt-2">
+                                            <div class="fw-bold text-info small" style="font-size: 0.75rem;">
+                                                <i class="bi bi-reply-fill me-1"></i> Răspunsul tău:
                                             </div>
+                                            <p class="small text-dark mb-0" th:text="${rev.providerResponse}">Răspuns</p>
+                                        </div>
 
-                                            <!-- 2. Formular de răspuns (apare doar dacă nu s-a răspuns încă și ești pe propriul tău profil) -->
-                                            <div th:if="${(rev.providerResponse == null or #strings.isEmpty(rev.providerResponse)) and loggedUser != null and user != null and loggedUser.userid == user.userid and user.userOrProvider}"
-                                                 class="mt-3 pt-2 border-top">
-                                                <form th:action="@{/reviews/{id}/respond(id=${rev.reviewId != null ? rev.reviewId : rev.id})}" method="post" class="d-flex gap-2">
-                                                    <input type="text"
-                                                           name="providerResponse"
-                                                           class="form-control form-control-sm rounded-pill shadow-none"
-                                                           placeholder="Scrie un răspuns oficial pentru acest client..."
-                                                           required autocomplete="off">
-                                                    <button type="submit" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold flex-shrink-0">
-                                                        <i class="bi bi-reply-fill me-1"></i> Răspunde
-                                                    </button>
-                                                </form>
-                                            </div>
+                                        <!-- Formular de răspuns -->
+                                        <div th:if="${(rev.providerResponse == null or #strings.isEmpty(rev.providerResponse)) and loggedUser != null and user != null and loggedUser.userid == user.userid and user.userOrProvider}"
+                                             class="mt-3 pt-2 border-top">
+                                            <form th:action="@{/reviews/{id}/respond(id=${rev.reviewId})}" method="post" class="d-flex gap-2">
+                                                <input type="text"
+                                                       name="providerResponse"
+                                                       class="form-control form-control-sm rounded-pill shadow-none"
+                                                       placeholder="Scrie un răspuns oficial pentru acest client..."
+                                                       required autocomplete="off">
+                                                <button type="submit" class="btn btn-sm btn-info text-white rounded-pill px-3 fw-bold flex-shrink-0">
+                                                    <i class="bi bi-reply-fill me-1"></i> Răspunde
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -650,10 +691,10 @@
 
             </div>
 
-            <!-- Dreapta: Sidebar Status / Acțiuni -->
+            <!-- COLOANA DREAPTA: SIDEBAR STATUS & EDITARE PROFIL (4 / 12) -->
             <div class="col-lg-4">
                 <div class="dashboard-card p-4 sticky-top" style="top: 85px;">
-                    <h6 class="fw-bold mb-3">Status Cont</h6>
+                    <h6 class="fw-bold mb-3 text-dark">Status Cont</h6>
                     <p class="text-secondary small mb-4">
                         Acest utilizator este înregistrat în rețeaua Trustlist și verificat conform standardelor noastre.
                     </p>
@@ -674,8 +715,18 @@
                         </span>
                     </div>
 
+                    <!-- Buton Chat către celălalt utilizator -->
+                    <div th:if="${loggedUser != null and user != null and loggedUser.userid != user.userid}" class="mb-3">
+                        <button type="button"
+                                th:attr="onclick=|openChatWith(${user.userid}, '${user.nume}')|"
+                                class="btn btn-info text-white w-100 rounded-3 fw-bold shadow-sm py-2">
+                            <i class="bi bi-chat-dots-fill me-1"></i> Trimite Mesaj
+                        </button>
+                    </div>
+
                     <hr class="my-3">
 
+                    <!-- Buton Editează Profilul (vizibil doar pentru posesor) -->
                     <div th:if="${loggedUser != null and user != null and loggedUser.userid == user.userid}">
                         <a th:href="@{/users/edit/{id}(id=${user.userid})}"
                            class="btn btn-light border text-secondary w-100 rounded-3 fw-semibold">
@@ -689,12 +740,12 @@
     </div>
 </section>
 
-
+<!-- BUTON TRIGGER CHAT -->
 <button class="chat-widget-btn" onclick="toggleChatPopup()" title="Chat Asistență / Conversații">
     <i class="bi bi-chat-dots-fill"></i>
 </button>
 
-
+<!-- FEREASTRĂ POPUP CHAT -->
 <div class="chat-popup-window" id="chatPopup">
     <div class="chat-popup-header">
         <div class="d-flex align-items-center gap-2">
@@ -722,7 +773,7 @@
     </form>
 </div>
 
-
+<!-- Bootstrap 5 JS & Scripturi -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -784,12 +835,8 @@
         const input = document.getElementById("popupMsgInput");
         const content = input.value.trim();
 
-        if (!content || !receiverId || receiverId === "0") {
-            console.warn("Nu este selectat niciun destinatar valid (receiverId=" + receiverId + ")");
-            return;
-        }
+        if (!content || !receiverId || receiverId === "0") return;
 
-        // Preluăm token-ul CSRF din meta tag-uri
         const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
 
@@ -797,13 +844,8 @@
         formData.append("receiverId", receiverId);
         formData.append("content", content);
 
-        const headers = {
-            "Content-Type": "application/x-www-form-urlencoded"
-        };
-
-        if (csrfToken) {
-            headers[csrfHeader] = csrfToken;
-        }
+        const headers = { "Content-Type": "application/x-www-form-urlencoded" };
+        if (csrfToken) headers[csrfHeader] = csrfToken;
 
         fetch("/api/chat/send", {
             method: "POST",
@@ -815,14 +857,10 @@
                     input.value = "";
                     loadPopupMessages();
                 } else {
-                    const errorText = await res.text();
-                    console.error("Eroare la trimitere mesaj (Status " + res.status + "):", errorText);
-                    alert("Mesajul nu a putut fi trimis (Eroare " + res.status + "). Verifică dacă ești autentificat.");
+                    alert("Mesajul nu a putut fi trimis.");
                 }
             })
-            .catch(err => {
-                console.error("Eroare rețea/Fetch:", err);
-            });
+            .catch(err => console.error(err));
     }
 
     function loadNavbarConversations() {
@@ -873,11 +911,7 @@
         if (dropdownEl) {
             const bsDropdown = bootstrap.Dropdown.getInstance(dropdownEl);
             if (bsDropdown) bsDropdown.hide();
-
-            const badge = dropdownEl.querySelector('.badge');
-            if (badge) badge.style.display = 'none';
         }
-
         toggleChatPopup(partnerId, partnerName);
     }
 
@@ -890,7 +924,6 @@
                 if (!chatBtn) return;
 
                 let badge = chatBtn.querySelector('.badge');
-
                 if (count > 0) {
                     if (!badge) {
                         badge = document.createElement('span');

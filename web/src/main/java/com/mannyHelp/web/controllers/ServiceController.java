@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -71,7 +72,7 @@ public class ServiceController {
             loggedUser = usersService.findUserByUsername(principal.getName());
         }
 
-      
+
         List<Recenzie> reviews = recenzieService.getRecenziiByService(serviceId);
         double averageRating = recenzieService.getAverageRatingByService(serviceId);
 
@@ -133,7 +134,63 @@ public class ServiceController {
 
         return "provider-services";
     }
+    @GetMapping("/services/edit/{id}")
+    public String showEditServiceForm(@PathVariable("id") int serviceId,
+                                      Model model,
+                                      Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        ServiceDto serviceDto = servicesService.findServiceById(serviceId);
+        UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
+
+        if (serviceDto == null || !serviceDto.getProviderId().equals(loggedUser.getUserid())) {
+            return "redirect:/users/" + loggedUser.getUserid();
+        }
+
+        model.addAttribute("service", serviceDto);
+        model.addAttribute("loggedUser", loggedUser);
+        return "edit-service";
+    }
+
+    @PostMapping("/services/edit/{id}")
+    public String updateService(@PathVariable("id") int serviceId,
+                                @ModelAttribute("service") ServiceDto serviceDto,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
+        serviceDto.setServiceid(serviceId);
+        servicesService.updateService(serviceDto);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Serviciul a fost actualizat cu succes!");
+        return "redirect:/users/" + loggedUser.getUserid();
+    }
+
+    @PostMapping("/services/delete/{id}")
+    public String deleteService(@PathVariable("id") int serviceId,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        UsersDto loggedUser = usersService.findUserByUsername(principal.getName());
+        ServiceDto serviceDto = servicesService.findServiceById(serviceId);
+
+        if (serviceDto != null && serviceDto.getProviderId().equals(loggedUser.getUserid())) {
+            servicesService.deleteService(serviceId);
+            redirectAttributes.addFlashAttribute("successMessage", "Serviciul a fost șters!");
+        }
+
+        return "redirect:/users/" + loggedUser.getUserid();
+    }
 }
+
 
 
 

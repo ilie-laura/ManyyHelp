@@ -66,7 +66,7 @@ public class UsersController {
         return "users-list";
     }@GetMapping("/users/{id}")
     public String userDetails(@PathVariable("id") Long userId,
-                              Principal principal, // <-- Folosim direct Principal pentru compatibilitate 100%
+                              Principal principal,
                               @RequestParam(value = "reviewLimit", defaultValue = "5") Integer reviewLimit,
                               Model model) {
 
@@ -87,6 +87,7 @@ public class UsersController {
         List<ProgramareDto> programari;
         List<Recenzie> userReviews = null;
         List<Recenzie> providerReceivedReviews = null;
+        List<ServiceDto> providerServices = null; // <-- ADAUGĂ LISTA DE SERVICII
         double providerAverageRating = 0.0;
 
         if (user != null && Boolean.TRUE.equals(user.getUserOrProvider())) {
@@ -94,6 +95,7 @@ public class UsersController {
             programari = programareService.getProgramariByProviderUserId(userId);
             providerReceivedReviews = recenzieService.getRecenziiByProvider(userId);
             providerAverageRating = recenzieService.getAverageRatingByProvider(userId);
+            providerServices = serviceService.findServicesByProviderUserId(userId); // <-- PREIA SERVICIILE
         } else {
             // DACĂ ESTE CLIENT:
             programari = programareService.getProgramariByUserId(userId);
@@ -109,6 +111,7 @@ public class UsersController {
         model.addAttribute("programari", programari);
         model.addAttribute("userReviews", userReviews);
         model.addAttribute("providerReviews", providerReceivedReviews);
+        model.addAttribute("providerServices", providerServices); 
         model.addAttribute("averageRating", providerAverageRating);
         model.addAttribute("selectedLimit", reviewLimit);
 
